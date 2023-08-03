@@ -10,7 +10,6 @@ class Scanner{
     private string source;// Codigo fuente proveido al scanner
     private List<Token> tokens = new List<Token>();// Tokens que conforman el codigo fuente
     private int current = 0;//Caracter a ser procesado
-    private int line = 0;//Linea actual en el codigo
     private int start = 0;//Start of the current token
 
     public Scanner(string source){
@@ -67,7 +66,7 @@ class Scanner{
                 else if(Match('>'))AddToken(ARROW);
                 else AddToken(EQUAL);
                 break;
-                
+
             case '<': AddToken(Match('=')?LESS_EQUAL:LESS);break;
             
             case '>': AddToken(Match('=')?GREATER_EQUAL:GREATER);break;
@@ -77,9 +76,35 @@ class Scanner{
                 else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",source,start);
                 //No existe un token en Hulk compuesto por solo :
                 break;
+
+            //Strings literals
+            case '"':
+                ScanString();
+                break;
         }
     }
 
+    //Scan a strng literal, el ultimo caracter procesado fue un "
+    //Lee caracteres hasta que encuentre el siguiente "
+    //Si llega al final sin encontrarlo es un error
+    private void ScanString(){
+        //Este while para si se llego al final o se encontraron las comillas dobles
+        while(!IsAtEnd() && Peek() != '"'){
+            Advance();
+        }
+
+        //No se cerraron las comillas dobles
+        if(IsAtEnd()){
+            throw new ScannerException("Closing quote is missing.",source,start);
+        }
+
+        //Consume las comillas de cierre
+        Advance();
+
+        //El valor del string incluye todo el string excepto las comillas dobles de apertura y cierre
+        string value = source.Substring(start + 1,current - start - 2);
+        AddToken(STRING,value);
+    }
 
     //Add a token to the list
     private void AddToken(TokenType type){
