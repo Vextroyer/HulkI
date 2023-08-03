@@ -90,8 +90,7 @@ class Scanner{
     private void ScanString(){
         //Este while para si se llego al final o se encontraron las comillas dobles
         while(!IsAtEnd() && Peek() != '"'){
-            char actual = Peek();
-            Advance();
+            char actual = Advance();
 
             //If the actual character is \ and next is " then th quote must not be interpreted
             //as an enclosing quote but as an escaped quote.
