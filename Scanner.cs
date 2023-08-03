@@ -81,9 +81,28 @@ class Scanner{
             case '"':
                 ScanString();
                 break;
+
+            default:
+                //Number literal
+                if(IsDigit(c)){
+                    ScanNumber();
+                }
+                break;
         }
     }
 
+    //Escanea un literal numerico
+    private void ScanNumber(){
+        while(IsDigit(Peek()))Advance();//Consume los digitos
+        
+        //Si hay un punto y caracteres decimales despues,este es un numero real
+        if(Peek() == '.' && IsDigit(PeekNext())){
+            Advance();//Consume el '.'
+            while(IsDigit(Peek()))Advance();//Consume los digitos
+        }
+
+        AddToken(NUMBER,float.Parse(source.Substring(start,current - start)));
+    }
     //Scan a strng literal, el ultimo caracter procesado fue un "
     //Lee caracteres hasta que encuentre el siguiente "
     //Si llega al final sin encontrarlo es un error
@@ -141,7 +160,13 @@ class Scanner{
     }
     //Devuelve el caracter actual sin consumirlo, no mueve current
     private char Peek(){
+        if(IsAtEnd())return '\0';//Garantiza que una llamada a Peek no lance una excepcion
         return source[current];
+    }
+    //Devuelve el caracter siguiente sin consumirlo, no mueve current
+    private char PeekNext(){
+        if(current + 1 >= source.Length)return '\0';//Garantiza que una llamada a Peek no lance una excepcion
+        return source[current + 1];
     }
     //Conditional advance, si el caracter actual coincide con el dado retorna verdadero y consume el caracter actual,
     //si no retorna falso y se mantiene el caracter actual
@@ -150,5 +175,10 @@ class Scanner{
 
         ++current;
         return true;
+    }
+    //Devuelve verdadero si el caracter es un digito entre [0,9]
+    private bool IsDigit(char c){
+        if('0' <= c && c <= '9')return true;
+        return false;
     }
 }
