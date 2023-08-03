@@ -7,9 +7,8 @@ namespace Hulk;
 enum TokenType
 {
     //Tokens de un solo caracter
-    LEFT_PAREN,RIGHT_PAREN,COMMA,MINUS,PLUS,SEMICOLON,SLASH,STAR,CARET,AT,AMPERSAND,PIPE,EULER,
+    LEFT_PAREN,RIGHT_PAREN,COMMA,MINUS,PLUS,SEMICOLON,SLASH,STAR,CARET,AT,AMPERSAND,PIPE,
     //Tokens de uno o dos caracteres
-    PI,
     BANG, BANG_EQUAL,
     EQUAL,EQUAL_EQUAL,
     LESS,LESS_EQUAL,
@@ -18,12 +17,11 @@ enum TokenType
     //Literals
     IDENTIFIER,STRING,NUMBER,
     //Keywords
-    ELSE,FALSE,FUNCTION,IF,PRINT,TRUE,LET,IN,
+    ELSE,FALSE,FUNCTION,IF,PRINT,TRUE,LET,IN,PI,EULER,
     EOF
 }
 
-// ( ) , - + ; / * ^ @ & | e
-// PI
+// ( ) , - + ; / * ^ @ & |
 // ! !=
 // = ==
 // < <=

@@ -12,6 +12,20 @@ class Scanner{
     private int current = 0;//Caracter a ser procesado
     private int start = 0;//Start of the current token
 
+    private static readonly Dictionary<string,TokenType> keywords = new Dictionary<string, TokenType>()
+    {
+        {"else",ELSE},
+        {"E",EULER},
+        {"false",FALSE},
+        {"function",FUNCTION},
+        {"if",IF},
+        {"in",IN},
+        {"let",LET},
+        {"PI",PI},
+        {"print",PRINT},
+        {"true",TRUE}
+    };
+
     public Scanner(string source){
         this.source = source;
     }
@@ -82,15 +96,41 @@ class Scanner{
                 ScanString();
                 break;
 
+            //Ignore whitespaces
+            case ' ':
+            case '\t':
+            case '\n':
+                break;
+
             default:
                 //Number literal
                 if(IsDigit(c)){
                     ScanNumber();
                 }
+                //Identifier, nombre de variable o funcion
+                else if(IsAlpha(c)){
+                    ScanIdentifier();
+                }
+                else{
+                    throw new ScannerException("Invalid character.",source,current - 1);
+                }
                 break;
         }
     }
+    //Escanea un identificador, que puede ser un nombre de variable, funcion o keyword
+    private void ScanIdentifier(){
+        while(IsAlphaNumeric(Peek()))Advance();//Consume todos los caracteres posibles (Maximal Munch)
 
+        string lexema = source.Substring(start,current - start);
+        TokenType type;
+        try{
+            //Is a keyword identifier
+            type = keywords[lexema];
+        }catch(KeyNotFoundException){
+            type = IDENTIFIER;
+        }
+        AddToken(type);
+    }
     //Escanea un literal numerico
     private void ScanNumber(){
         while(IsDigit(Peek()))Advance();//Consume los digitos
@@ -180,5 +220,15 @@ class Scanner{
     private bool IsDigit(char c){
         if('0' <= c && c <= '9')return true;
         return false;
+    }
+    //Devuelve verdadero si el caracter es una letra o un underscore _
+    private bool IsAlpha(char c){
+        return ('a' <= c && c <= 'z') ||
+               ('A' <= c && c <= 'Z') ||
+               (c == '_');
+    }
+    //Devuelve verdadero si es letra o digito
+    private bool IsAlphaNumeric(char c){
+        return IsDigit(c) || IsAlpha(c);
     }
 }
