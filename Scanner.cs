@@ -90,7 +90,16 @@ class Scanner{
     private void ScanString(){
         //Este while para si se llego al final o se encontraron las comillas dobles
         while(!IsAtEnd() && Peek() != '"'){
+            char actual = Peek();
             Advance();
+
+            //If the actual character is \ and next is " then th quote must not be interpreted
+            //as an enclosing quote but as an escaped quote.
+            if(actual == '\\' && !IsAtEnd() && Peek() == '"'){
+                Advance();
+                //A call to advance will consume the quote and thus it will not be seen by the while condition
+                //After that it can be escaped below.
+            }
         }
 
         //No se cerraron las comillas dobles
@@ -103,6 +112,12 @@ class Scanner{
 
         //El valor del string incluye todo el string excepto las comillas dobles de apertura y cierre
         string value = source.Substring(start + 1,current - start - 2);
+        
+        //Escape characters if any
+        value = value.Replace("\\t","\t");
+        value = value.Replace("\\n","\n");
+        value = value.Replace("\\\"","\"");
+
         AddToken(STRING,value);
     }
 
