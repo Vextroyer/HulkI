@@ -25,16 +25,25 @@ class Hulk{
         List<Token> tokens;
         try{
             tokens = scanner.Scan();
+            //Print tokens
+            foreach(Token token in tokens){
+                Console.WriteLine(token);
+            }
+            //Parse the input
+            Parser parser = new Parser(tokens);
+            Expr ast = parser.Parse();
+
+            //Print the ast
+            Console.WriteLine(AstPrinter.Print(ast));
+
+            // Interpret the input
         }catch(ScannerException e){
             Error(e.Message,e.Contexto,e.Ofsset);
             return;
+        }catch(Exception e){
+            Error(e.Message);
+            return;
         }
-        foreach(Token token in tokens){
-            Console.WriteLine(token);
-        }
-        //Parse the input
-
-        // Interpret the input
     }
     //Maneja la presentacion de los errores en pantalla
     private static void Error(string message){
