@@ -38,6 +38,24 @@ class Interpreter : Visitor<object>{
     }
 
     public object VisitBinaryExpr(BinaryExpr expr){
+        object left = Evaluate(expr.Left);
+        object right = Evaluate(expr.Right);
+        switch(expr.Operation.Type){
+            case TokenType.PLUS:
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left + (float)right;
+
+            case TokenType.MINUS:
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left - (float)right;
+
+            case TokenType.AT:
+                CheckStringOperand(expr.Operation,left);
+                CheckStringOperand(expr.Operation,right);
+                return (string)left + (string)right;
+        }
         return null;
     }
 
@@ -53,4 +71,9 @@ class Interpreter : Visitor<object>{
             throw new RuntimeError("Incorrect operand type for "+operation.Lexema+" operator. Number expected and "+ value.GetType().Name  +" was provided.");
         }
     }
+    private void CheckStringOperand(Token operation, object value){
+        if(!(value is string)){
+            throw new RuntimeError("Incorrect operand type for "+operation.Lexema+" operator. String expected and "+ value.GetType().Name  +" was provided.");
+        }
+    }   
 }
