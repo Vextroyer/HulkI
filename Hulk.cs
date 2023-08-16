@@ -20,27 +20,26 @@ class Hulk{
     //Interpret an run the content of of the source 
     private static void Run(string? source){
         if(string.IsNullOrEmpty(source))throw new ArgumentException();
-        //Scan the input
-        Scanner scanner = new Scanner(source);
-        List<Token> tokens;
         try{
+            //Scan the input
+            Scanner scanner = new Scanner(source);
+            List<Token> tokens;
             tokens = scanner.Scan();
-            //Print tokens
-            foreach(Token token in tokens){
-                Console.WriteLine(token);
-            }
+            //DebugScanner(tokens);
+
             //Parse the input
             Parser parser = new Parser(tokens);
             Expr expr = parser.Parse();
-
-            //Print the ast
-            AstPrinter printer = new AstPrinter();
-            Console.WriteLine(printer.Print(expr));
+            //DebugParser(expr);
 
             // Interpret the input
+            Interpreter interpreter = new Interpreter();
+            interpreter.Interpret(expr);
         }catch(ScannerException e){
             Error(e.Message,e.Contexto,e.Ofsset);
             return;
+        }catch(RuntimeError e){
+            Error(e.Message);
         }catch(Exception e){
             Error(e.Message);
             return;
@@ -56,5 +55,18 @@ class Hulk{
         for(int i=0;i < 4 + offset;++i)Console.Error.Write(' ');
         Console.Error.Write('^');
         Console.Error.WriteLine();
+    }
+
+    private static void DebugScanner(List<Token> tokens){
+        //Print tokens
+        foreach(Token token in tokens){
+             Console.WriteLine(token);
+        }
+    }
+
+    private static void DebugParser(Expr expr){
+        //Print the ast
+        AstPrinter printer = new AstPrinter();
+        Console.WriteLine(printer.Print(expr));
     }
 }

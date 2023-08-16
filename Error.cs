@@ -23,3 +23,9 @@ class ScannerException : Exception{
     //Cantidad de caracteres desde el inicio de la linea donde se descubrio el error. Es una aproximacion de la ubicacion.
     public int Ofsset {get;}
 }
+
+class RuntimeError : Exception{
+    public RuntimeError(string? message) : base(message){
+
+    }
+}
