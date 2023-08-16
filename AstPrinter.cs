@@ -4,29 +4,23 @@ This class prints an abstract syntax tree in reverse polish notation
 
 namespace Hulk;
 
-static class AstPrinter{
-    // public static string Print(Expr expr){
-    //     if(expr is LiteralExpr)return PrintLiteralExpr((LiteralExpr) expr);
-    //     return "NULL";
-    // }
+class AstPrinter : Visitor<string>{
+    public AstPrinter(){}
 
-    // private static string PrintLiteralExpr(LiteralExpr expr){
-    //     return expr.Value.ToString();
-    // }
-
-    public static string Print(Expr expr){
-        return "("+expr.Print()+")";
+    public string Print(Expr expr){
+        return expr.Accept(this);
     }
 
-    public static string Accept(UnaryExpr expr){
-        string operation;
-        if(expr.Operation == TokenType.MINUS)operation = "-";
-        else operation = "!";
-
-        return operation + " " + Print(expr.Expression);
+    public string VisitBinaryExpr(BinaryExpr expr){
+        
+        return expr.Operation.Lexema + "(" + Print(expr.Left) + " " + Print(expr.Right) + ")";
     }
 
-    public static string Accept(LiteralExpr expr){
+    public string VisitUnaryExpr(UnaryExpr expr){
+        return expr.Operation.Lexema + " (" + Print(expr.Expression) + ")";
+    }
+
+    public string VisitLiteralExpr(LiteralExpr expr){
         return expr.Value.ToString();
     }
 }

@@ -31,10 +31,11 @@ class Hulk{
             }
             //Parse the input
             Parser parser = new Parser(tokens);
-            Expr ast = parser.Parse();
+            Expr expr = parser.Parse();
 
             //Print the ast
-            Console.WriteLine(AstPrinter.Print(ast));
+            AstPrinter printer = new AstPrinter();
+            Console.WriteLine(printer.Print(expr));
 
             // Interpret the input
         }catch(ScannerException e){

@@ -6,7 +6,13 @@ The tree is produced by the parser and then consumed by the interpreter.
 namespace Hulk;
 
 abstract class Expr{
-    abstract public string Print();//For debbugging purposes
+    public abstract R Accept<R> (Visitor<R> visitor);
+}
+
+interface Visitor<R>{
+     R VisitBinaryExpr(BinaryExpr expr);
+     R VisitLiteralExpr(LiteralExpr expr);
+     R VisitUnaryExpr(UnaryExpr expr);
 }
 
 //Represents string and number literals
@@ -17,22 +23,42 @@ class LiteralExpr : Expr{
         this.Value = value;
     }
 
-    override public string Print(){
-        return AstPrinter.Accept(this);
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitLiteralExpr(this);
     }
 }
 
 //Represents unary operators like (! -)
 class UnaryExpr : Expr{
-    public TokenType Operation{get; private set;}
+    public Token Operation{get; private set;}
     public Expr Expression{get; private set;}
 
-    public UnaryExpr(TokenType operation,Expr expr){
+    public UnaryExpr(Token operation,Expr expr){
         Operation = operation;
         Expression = expr;
     }
 
-    override public string Print(){
-        return AstPrinter.Accept(this);
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitUnaryExpr(this);
+    }
+}
+
+class BinaryExpr : Expr{
+    public Expr Left{get; private set;}
+    public Expr Right{get; private set;}
+
+    public Token Operation{get; private set;}
+
+    public BinaryExpr(Expr left,Token operation,Expr right){
+        Left = left;
+        Operation = operation;
+        Right = right;
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitBinaryExpr(this);
     }
 }

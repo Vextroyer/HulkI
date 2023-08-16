@@ -21,14 +21,47 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
-        return Unary();
+        return Term();
+    }
+
+    //Sumas, restas y concatenaciones de cadenas
+    private Expr Term(){
+        Expr expr = Factor();
+        while(Match(TokenType.MINUS,TokenType.PLUS,TokenType.AT)){
+            Token operation = Previous();
+            Expr right = Factor();
+            expr = new BinaryExpr(expr,operation,right);
+        }
+        return expr;
+    }
+
+    //Productos y cocientes
+    private Expr Factor(){
+        Expr expr = Power();
+        while(Match(TokenType.SLASH,TokenType.STAR)){
+            Token operation = Previous();
+            Expr right = Power();
+            expr = new BinaryExpr(expr,operation,right);
+        }
+        return expr;
+    }
+
+    //Potencias (Rigth to left associative)
+    private Expr Power(){
+        Expr expr = Unary();
+        while(Match(TokenType.CARET)){
+            Token operation = Previous();
+            Expr right = Power();
+            expr = new BinaryExpr(expr,operation,right);
+        }
+        return expr;
     }
 
     private Expr Unary(){
         switch(Peek().Type){
             case TokenType.MINUS:
             case TokenType.BANG:
-                TokenType operation = Consume().Type;
+                Token operation = Advance();
                 return new UnaryExpr(operation,Expression());
             default:
                 return Literal();
@@ -39,7 +72,7 @@ class Parser{
         switch(Peek().Type){
             case TokenType.STRING:
             case TokenType.NUMBER:
-                return new LiteralExpr(Peek().Literal);
+                return new LiteralExpr(Advance().Literal);
             default:
                 return Unrecognized();
         }
@@ -55,8 +88,22 @@ class Parser{
         return tokens[current];
     }
     //Return the current token and advance current
-    private Token Consume(){
+    private Token Advance(){
         ++current;
+        return tokens[current - 1];
+    }
+    //Retorna verdadero si el token actual coincide con cualquiera de los tokens proporcionados y lo consume. De ser falso no lo consume.
+    private bool Match(params TokenType[] types){
+        foreach(TokenType type in types){
+            if(type == Peek().Type){
+                Advance();
+                return true;
+            }
+        }
+        return false;
+    }
+    //Retorna el token anterior
+    private Token Previous(){
         return tokens[current - 1];
     }
 }
