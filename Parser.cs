@@ -62,10 +62,15 @@ class Parser{
             case TokenType.MINUS:
             case TokenType.BANG:
                 Token operation = Advance();
-                return new UnaryExpr(operation,Expression());
+                return new UnaryExpr(operation,Grouping());
             default:
                 return Literal();
         }
+    }
+
+    //Evaluate parenthesis
+    private Expr Grouping(){
+        return Literal();
     }
 
     private Expr Literal(){
