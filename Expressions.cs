@@ -44,7 +44,7 @@ class UnaryExpr : Expr{
         return visitor.VisitUnaryExpr(this);
     }
 }
-
+//Represents Binary Operators like + - * / ^ @
 class BinaryExpr : Expr{
     public Expr Left{get; private set;}
     public Expr Right{get; private set;}
