@@ -5,12 +5,20 @@ The backbone of the Hulk interpreter.
 */
 class Hulk{
     public static void Main(string[] args){
+        //Testing Mode
+        if(args.Length > 0 && args[0] == "test")
+        {
+            Tester.Test();
+            Environment.Exit(0);
+        }
+
+
         //Interactive mode
         while(true){
             Console.Write("> ");
             try{
                 string? source = Console.ReadLine();
-                Run(source);
+                Console.WriteLine(Run(source));
             }catch(ArgumentException){
                 //En el caso de que la entrada sea nula o vacia no hacer nada
             }
@@ -18,31 +26,32 @@ class Hulk{
     }
 
     //Interpret an run the content of of the source 
-    private static void Run(string? source){
+    public static string Run(string? source){
         if(string.IsNullOrEmpty(source))throw new ArgumentException();
         try{
             //Scan the input
             Scanner scanner = new Scanner(source);
             List<Token> tokens;
             tokens = scanner.Scan();
-            //DebugScanner(tokens);
+            // DebugScanner(tokens); // Comentar o descomentar para debugear
 
             //Parse the input
             Parser parser = new Parser(tokens);
             Expr expr = parser.Parse();
-            //DebugParser(expr);
+            // DebugParser(expr); // Comentar o descomentar para debugear
 
             // Interpret the input
             Interpreter interpreter = new Interpreter();
-            interpreter.Interpret(expr);
+            return interpreter.Interpret(expr);
         }catch(ScannerException e){
             Error(e.Message,e.Contexto,e.Ofsset);
-            return;
+            return "";
         }catch(RuntimeError e){
             Error(e.Message);
+            return "";
         }catch(Exception e){
             Error(e.Message);
-            return;
+            return "";
         }
     }
     //Maneja la presentacion de los errores en pantalla

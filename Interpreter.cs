@@ -7,8 +7,8 @@ namespace Hulk;
 class Interpreter : Visitor<object>{
     public Interpreter(){}
 
-    public void Interpret(Expr expr){
-        Console.WriteLine(Stringify(Evaluate(expr)));
+    public string Interpret(Expr expr){
+        return Stringify(Evaluate(expr));
     }
 
     private string Stringify(object value){
@@ -38,23 +38,39 @@ class Interpreter : Visitor<object>{
     }
 
     public object VisitBinaryExpr(BinaryExpr expr){
+        //IMPORTANT: Evaluating expresions is done from left to right and before thr binary operation.
         object left = Evaluate(expr.Left);
         object right = Evaluate(expr.Right);
         switch(expr.Operation.Type){
-            case TokenType.PLUS:
+            case TokenType.PLUS://Adicion
                 CheckNumberOperand(expr.Operation,left);
                 CheckNumberOperand(expr.Operation,right);
                 return (float)left + (float)right;
 
-            case TokenType.MINUS:
+            case TokenType.MINUS://Substraccion
                 CheckNumberOperand(expr.Operation,left);
                 CheckNumberOperand(expr.Operation,right);
                 return (float)left - (float)right;
 
-            case TokenType.AT:
+            case TokenType.AT://Concatenacion de cadenas
                 CheckStringOperand(expr.Operation,left);
                 CheckStringOperand(expr.Operation,right);
                 return (string)left + (string)right;
+
+            case TokenType.STAR://Multiplicacion
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left * (float)right;
+            
+            case TokenType.SLASH://Division
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left / (float)right;
+
+            case TokenType.CARET://Potenciacion
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float) Math.Pow((float)left,(float)right);//Cast the pow result to keep types consistent
         }
         return null;
     }
