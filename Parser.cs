@@ -75,9 +75,25 @@ class Parser{
 
     private Expr Literal(){
         switch(Peek().Type){
+            //String or number literal
             case TokenType.STRING:
             case TokenType.NUMBER:
                 return new LiteralExpr(Advance().Literal);
+            //Boolean literals
+            case TokenType.TRUE:
+                Advance();
+                return new LiteralExpr(true);
+            case TokenType.FALSE:
+                Advance();
+                return new LiteralExpr(false);
+            //Pi
+            case TokenType.PI:
+                Advance();
+                return new LiteralExpr((float)Math.PI);
+            //Euler
+            case TokenType.EULER:
+                Advance();
+                return new LiteralExpr((float)Math.E);
             default:
                 return Unrecognized();
         }
