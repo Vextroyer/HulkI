@@ -54,3 +54,8 @@ class InterpreterException : Exception,HulkTypeError{
         return "SEMANTIC ERROR";
     }
 }
+
+/*
+A resource used in handling errors. Expected exceptions throw this exception. Unexpected ones do not.
+*/
+class HandledException : Exception{}

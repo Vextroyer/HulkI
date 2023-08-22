@@ -41,7 +41,7 @@ class Scanner{
             return this.tokens;
         }catch(ScannerException e){
             Hulk.ScannerError(e);
-            throw new Exception();
+            throw new HandledException();
         }
     }
 

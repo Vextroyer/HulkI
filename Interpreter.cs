@@ -13,7 +13,7 @@ class Interpreter : Visitor<object>{
         }
         catch(InterpreterException e){
             Hulk.InterpreterError(e);
-            throw new Exception();
+            throw new HandledException();
         }
     }
 

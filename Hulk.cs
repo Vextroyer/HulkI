@@ -45,7 +45,12 @@ class Hulk{
             return interpreter.Interpret(expr);
         }
         //If an exception is launched, means an error ocurred and so the processing of this expression is ended.
+        catch(HandledException e){
+            return null;
+        }
         catch(Exception e){
+            Console.WriteLine("UNHANDLED EXCEPTION");
+            Console.WriteLine(e.Message);
             return null;
         }
     }

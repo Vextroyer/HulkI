@@ -15,13 +15,11 @@ class Parser{
     //Parse the content provided
     public Expr Parse(){
         try{
-            Expr expr =  Expression();
-            if(tokens[current].Type != TokenType.EOF)throw new ParserException("Malformed expression");
-            return expr;
+            return Expression();
         }
         catch(ParserException e){
             Hulk.ParserError(e);
-            throw new Exception();
+            throw new HandledException();
         }
         
     }
@@ -30,7 +28,18 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
-        return Term();
+        Expr expr = Term();
+        //Expressions must end in a ;
+        if(Match(TokenType.SEMICOLON)){
+            if(Match(TokenType.EOF))return expr;
+            else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.");
+        }
+        else{
+            //Si no existe ;
+            if(!HasSemicolon())throw new ParserException("Expression must end in a ';'");
+            //Si existe entonces hay tokens que no fueron interpretados
+            throw new ParserException("Malformed expresion.");
+        }
     }
 
     //Sumas, restas y concatenaciones de cadenas
@@ -145,5 +154,13 @@ class Parser{
     //Retorna el token anterior
     private Token Previous(){
         return tokens[current - 1];
+    }
+
+    //Returns true if there exist a semicolon on the remaining tokens
+    private bool HasSemicolon(){
+        for(int i=current;i<tokens.Count;++i){
+            if(tokens[i].Type == TokenType.SEMICOLON)return true;
+        }
+        return false;
     }
 }
