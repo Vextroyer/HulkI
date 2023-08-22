@@ -8,7 +8,13 @@ class Interpreter : Visitor<object>{
     public Interpreter(){}
 
     public string Interpret(Expr expr){
-        return Stringify(Evaluate(expr));
+        try{
+            return Stringify(Evaluate(expr));
+        }
+        catch(InterpreterException e){
+            Hulk.InterpreterError(e);
+            throw new Exception();
+        }
     }
 
     private string Stringify(object value){
@@ -85,17 +91,17 @@ class Interpreter : Visitor<object>{
     //Comprueba que el objeto dado es un numero, en caso contrario lanza una excepcion
     private void CheckNumberOperand(Token operation, object value){
         if(!(value is float)){
-            throw new RuntimeError("Incorrect operand type for "+operation.Lexema+" operator. Number expected and "+ value.GetType().Name  +" was found.");
+            throw new InterpreterException("Incorrect operand type for "+operation.Lexema+" operator. Number expected and "+ value.GetType().Name  +" was found.");
         }
     }
     private void CheckStringOperand(Token operation, object value){
         if(!(value is string)){
-            throw new RuntimeError("Incorrect operand type for "+operation.Lexema+" operator. String expected and "+ value.GetType().Name  +" was found.");
+            throw new InterpreterException("Incorrect operand type for "+operation.Lexema+" operator. String expected and "+ value.GetType().Name  +" was found.");
         }
     }
     private void CheckBoolOperand(Token operation, object value){
         if(!(value is bool)){
-            throw new RuntimeError("Incorrect operand type for "+operation.Lexema+" operator. Boolean expected and "+ value.GetType().Name  +" was found.");
+            throw new InterpreterException("Incorrect operand type for "+operation.Lexema+" operator. Boolean expected and "+ value.GetType().Name  +" was found.");
         }
     }
 }

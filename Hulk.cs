@@ -43,27 +43,31 @@ class Hulk{
             // Interpret the input
             Interpreter interpreter = new Interpreter();
             return interpreter.Interpret(expr);
-        }catch(ScannerException e){
-            Error(e.Message,e.Contexto,e.Ofsset);
-            return "";
-        }catch(RuntimeError e){
-            Error(e.Message);
-            return "";
-        }catch(Exception e){
-            Error(e.Message);
-            return "";
+        }
+        //If an exception is launched, means an error ocurred and so the processing of this expression is ended.
+        catch(Exception e){
+            return null;
         }
     }
+
     //Maneja la presentacion de los errores en pantalla
-    private static void Error(string message){
-        Console.Error.WriteLine("!ERROR " + message);
+    private static void Error(string message, string errorType = "ERROR"){
+        Console.Error.WriteLine("! "+ errorType + "    " + message);
     }
-    private static void Error(string message,string contexto,int offset){
-        Error(message);
-        Console.Error.WriteLine("In: " + contexto);
-        for(int i=0;i < 4 + offset;++i)Console.Error.Write(' ');
+    internal static void ScannerError(ScannerException e){
+        Error(e.Message,e.ErrorType());
+        Console.Error.WriteLine("In: " + e.Contexto);
+        for(int i=0;i < 4 + e.Ofsset;++i)Console.Error.Write(' ');
         Console.Error.Write('^');
         Console.Error.WriteLine();
+    }
+
+    internal static void ParserError(ParserException e){
+        Error(e.Message,e.ErrorType());
+    }
+
+    internal static void InterpreterError(InterpreterException e){
+        Error(e.Message,e.ErrorType());
     }
 
     private static void DebugScanner(List<Token> tokens){

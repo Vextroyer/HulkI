@@ -4,11 +4,18 @@ programa de Lox.
 */
 namespace Hulk;
 
+interface HulkTypeError {
+    public string ErrorType();
+}
+
 /*
 Este tipo de excepciones ocurren durante el escaneo del codigo fuente
 y representan los errores lexicos de Hulk
 */
-class ScannerException : Exception{
+class ScannerException : Exception,HulkTypeError{
+    public string ErrorType(){
+        return "LEXICAL ERROR";
+    }
     public ScannerException():base(){
         this.Contexto = "";
         this.Ofsset = 0;
@@ -24,8 +31,26 @@ class ScannerException : Exception{
     public int Ofsset {get;}
 }
 
-class RuntimeError : Exception{
-    public RuntimeError(string? message) : base(message){
+/*
+Este tipo de excepciones ocurren al parsear los tokens generados por el Scanner y representan los errores
+sintacticos de Hulk.
+*/
+class ParserException : Exception,HulkTypeError{
+    public ParserException(string message) : base(message){}
 
+    public string ErrorType(){
+        return "SYNTACTIC ERROR";
+    }
+}
+
+/*
+Este tipo de excepciones ocurren al interpretar las expresiones parseadas y representan los errores
+semnticos de Hulk.
+*/
+class InterpreterException : Exception,HulkTypeError{
+    public InterpreterException(string message) : base(message){}
+
+    public string ErrorType(){
+        return "SEMANTIC ERROR";
     }
 }

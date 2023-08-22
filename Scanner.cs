@@ -32,12 +32,17 @@ class Scanner{
 
     //Escanea el codigo fuente y produce una lista de tokens
     public List<Token> Scan(){
-        while(!IsAtEnd()){
-            start = current;
-            ScanToken();
+        try{
+            while(!IsAtEnd()){
+                start = current;
+                ScanToken();
+            }
+            tokens.Add(new Token(EOF,"",null));
+            return this.tokens;
+        }catch(ScannerException e){
+            Hulk.ScannerError(e);
+            throw new Exception();
         }
-        tokens.Add(new Token(EOF,"",null));
-        return this.tokens;
     }
 
     //escanea el siguiente token

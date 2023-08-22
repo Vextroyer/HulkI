@@ -14,7 +14,16 @@ class Parser{
 
     //Parse the content provided
     public Expr Parse(){
-        return Expression();
+        try{
+            Expr expr =  Expression();
+            if(tokens[current].Type != TokenType.EOF)throw new ParserException("Malformed expression");
+            return expr;
+        }
+        catch(ParserException e){
+            Hulk.ParserError(e);
+            throw new Exception();
+        }
+        
     }
  
     //Here are the recursive descending methods for interpreting the expressions.
@@ -64,12 +73,22 @@ class Parser{
                 Token operation = Advance();
                 return new UnaryExpr(operation,Grouping());
             default:
-                return Literal();
+                return Grouping();
         }
     }
 
     //Evaluate parenthesis
     private Expr Grouping(){
+        /*if(Match(TokenType.LEFT_PAREN)){
+            Expr expr = Expression();
+            if(!Match(TokenType.RIGHT_PAREN))throw new Exception("Missing close paren");
+            return expr;
+        }
+        //What if you found a closing paren ? Then it has no opening paren because in case of existing the above code would be executed
+        if(Match(TokenType.RIGHT_PAREN)){
+            throw new Exception("Missing open paren");
+        }
+        */
         return Literal();
     }
 
@@ -101,7 +120,7 @@ class Parser{
 
     //Helper method that launch an exception
     private Expr Unrecognized(){
-        throw new Exception("Unrecognized Expresion.");
+        throw new ParserException("Unrecognized Expresion.");
     }
 
     //Return the next token to be procesed without advancing current
