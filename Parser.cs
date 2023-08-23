@@ -80,7 +80,7 @@ class Parser{
             case TokenType.MINUS:
             case TokenType.BANG:
                 Token operation = Advance();
-                return new UnaryExpr(operation,Grouping());
+                return new UnaryExpr(operation,Unary());
             default:
                 return Grouping();
         }
