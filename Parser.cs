@@ -15,7 +15,18 @@ class Parser{
     //Parse the content provided
     public Expr Parse(){
         try{
-            return Expression();
+            Expr expr = Expression();
+            //Expressions must end in a ;
+            if(Match(TokenType.SEMICOLON)){
+                if(Match(TokenType.EOF))return expr;
+                else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.");
+            }
+            else{
+                //Si no existe ;
+                if(!HasSemicolon())throw new ParserException("Expression must end in a ';'");
+                //Si existe entonces hay tokens que no fueron interpretados
+                throw new ParserException("Malformed expresion.");
+            }
         }
         catch(ParserException e){
             Hulk.ParserError(e);
@@ -28,18 +39,7 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
-        Expr expr = Term();
-        //Expressions must end in a ;
-        if(Match(TokenType.SEMICOLON)){
-            if(Match(TokenType.EOF))return expr;
-            else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.");
-        }
-        else{
-            //Si no existe ;
-            if(!HasSemicolon())throw new ParserException("Expression must end in a ';'");
-            //Si existe entonces hay tokens que no fueron interpretados
-            throw new ParserException("Malformed expresion.");
-        }
+        return Term();
     }
 
     //Sumas, restas y concatenaciones de cadenas
@@ -88,16 +88,11 @@ class Parser{
 
     //Evaluate parenthesis
     private Expr Grouping(){
-        /*if(Match(TokenType.LEFT_PAREN)){
+        if(Match(TokenType.LEFT_PAREN)){
             Expr expr = Expression();
-            if(!Match(TokenType.RIGHT_PAREN))throw new Exception("Missing close paren");
+            if(!Match(TokenType.RIGHT_PAREN))throw new Exception("Missing close paren.");
             return expr;
         }
-        //What if you found a closing paren ? Then it has no opening paren because in case of existing the above code would be executed
-        if(Match(TokenType.RIGHT_PAREN)){
-            throw new Exception("Missing open paren");
-        }
-        */
         return Literal();
     }
 
