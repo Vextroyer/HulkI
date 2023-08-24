@@ -98,8 +98,19 @@ class Interpreter : Visitor<object>{
                 CheckNumberOperand(expr.Operation,left);
                 CheckNumberOperand(expr.Operation,right);
                 return (float)left >= (float)right;
+
+            case TokenType.EQUAL_EQUAL://Comparacion de igualdad
+                return IsEqual(left,right);
+            
+            case TokenType.BANG_EQUAL://Comparacion de desigualdad
+                return !IsEqual(left,right);
         }
         return null;
+    }
+
+    //
+    private bool IsEqual(object left,object right){
+        return Equals(left,right);
     }
 
     //Una expresion es verdadera si no es falsa o no es null

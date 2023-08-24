@@ -42,7 +42,18 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
-        return Comparison();
+        return Equality();
+    }
+
+    //Representa igualdades
+    private Expr Equality(){
+        Expr expr = Comparison();
+        if(Match(TokenType.EQUAL_EQUAL,TokenType.BANG_EQUAL)){
+            Token operation = Previous();
+            Expr right = Comparison();
+            return new BinaryExpr(expr,operation,right);
+        }
+        return expr;
     }
 
     //Representa comparaciones : < <= > >=
