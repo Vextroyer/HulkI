@@ -25,6 +25,9 @@ class Parser{
                 //Si no existe ;
                 if(!HasSemicolon())throw new ParserException("Expression must end in a ';'");
                 //Si existe entonces hay tokens que no fueron interpretados
+
+                //Si es un parentesis de cierre entonces falta el de apertura
+                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing opening paren.");
                 throw new ParserException("Malformed expresion.");
             }
         }
