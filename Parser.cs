@@ -90,7 +90,7 @@ class Parser{
     private Expr Grouping(){
         if(Match(TokenType.LEFT_PAREN)){
             Expr expr = Expression();
-            if(!Match(TokenType.RIGHT_PAREN))throw new Exception("Missing close paren.");
+            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing close paren.");
             return expr;
         }
         return Literal();
