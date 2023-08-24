@@ -78,6 +78,26 @@ class Interpreter : Visitor<object>{
                 CheckNumberOperand(expr.Operation,left);
                 CheckNumberOperand(expr.Operation,right);
                 return (float) Math.Pow((float)left,(float)right);//Cast the pow result to keep types consistent
+            
+            case TokenType.LESS://Menor que
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left < (float)right;
+
+            case TokenType.LESS_EQUAL://Menor o igual que
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left <= (float)right;
+
+            case TokenType.GREATER://Mayor
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left > (float)right;
+            
+            case TokenType.GREATER_EQUAL://Mayor o igual
+                CheckNumberOperand(expr.Operation,left);
+                CheckNumberOperand(expr.Operation,right);
+                return (float)left >= (float)right;
         }
         return null;
     }

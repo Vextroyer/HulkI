@@ -42,7 +42,18 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
-        return Term();
+        return Comparison();
+    }
+
+    //Representa comparaciones : < <= > >=
+    private Expr Comparison(){
+        Expr expr = Term();
+        if(Match(TokenType.LESS,TokenType.LESS_EQUAL,TokenType.GREATER,TokenType.GREATER_EQUAL)){
+            Token operation = Previous();
+            Expr right = Term();
+            return new BinaryExpr(expr,operation,right);
+        }
+        return expr;
     }
 
     //Sumas, restas y concatenaciones de cadenas
