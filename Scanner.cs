@@ -22,7 +22,6 @@ class Scanner{
         {"in",IN},
         {"let",LET},
         {"PI",PI},
-        {"print",PRINT},
         {"true",TRUE}
     };
 
@@ -45,7 +44,7 @@ class Scanner{
         }
     }
 
-    //escanea el siguiente token
+    //Escanea el siguiente token
     private void ScanToken(){
         char c = Advance();
         switch(c){
@@ -74,9 +73,6 @@ class Scanner{
             
             case '|': AddToken(PIPE);break;
             
-            //case 'E': 
-            //pi
-
             case '!': AddToken(Match('=')?BANG_EQUAL:BANG);break;
             
             //Hay 3 operadores que comienzan con = : = , == , =>
@@ -92,8 +88,7 @@ class Scanner{
             
             case ':': 
                 if(Match('='))AddToken(ASSIGN);
-                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",source,start);
-                //No existe un token en Hulk compuesto por solo :
+                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",source,start);//No existe un token en Hulk compuesto por solo :
                 break;
 
             //Strings literals
