@@ -104,6 +104,16 @@ class Interpreter : Visitor<object>{
             
             case TokenType.BANG_EQUAL://Comparacion de desigualdad
                 return !IsEqual(left,right);
+
+            case TokenType.AMPERSAND://Logical and
+                CheckBoolOperand(expr.Operation,left);
+                CheckBoolOperand(expr.Operation,right);
+                return (bool)left && (bool)right;
+
+            case TokenType.PIPE://Logical or
+                CheckBoolOperand(expr.Operation,left);
+                CheckBoolOperand(expr.Operation,right);
+                return (bool)left || (bool)right;
         }
         return null;
     }

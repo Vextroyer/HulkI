@@ -42,7 +42,27 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
-        return Equality();
+        return Or();
+    }
+    //Representa las operaciones logicas and(&) y or(|)
+    private Expr Or(){
+        Expr expr = And();
+        while(Match(TokenType.PIPE)){
+            Token operation = Previous();
+            Expr right = And();
+            return new BinaryExpr(expr,operation,right);
+        }
+        return expr;
+    }
+
+    private Expr And(){
+        Expr expr = Equality();
+        while(Match(TokenType.AMPERSAND)){
+            Token operation = Previous();
+            Expr right = Equality();
+            return new BinaryExpr(expr,operation,right);
+        }
+        return expr;
     }
 
     //Representa igualdades
