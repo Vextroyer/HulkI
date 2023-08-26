@@ -20,34 +20,37 @@ class Hulk{
                 string? source = Console.ReadLine();
                 Console.WriteLine(Run(source));
             }catch(ArgumentException){
-                //En el caso de que la entrada sea nula o vacia no hacer nada
+                //If the input is null or empty someone just hit enter. Ignore it and continue the REPL mode.
             }
         }
     }
 
-    //Interpret an run the content of of the source 
-    public static string Run(string? source){
+    //Interpret and run the content of of the source.
+    //Return the result of evaluate the expression or null if an error ocurred.
+    //In the case of an error it will automatically report it before returning.
+    public static string? Run(string? source){
         if(string.IsNullOrEmpty(source))throw new ArgumentException();
         try{
             //Scan the input
             Scanner scanner = new Scanner(source);
             List<Token> tokens;
             tokens = scanner.Scan();
-            // DebugScanner(tokens); // Comentar o descomentar para debugear
+            // DebugScanner(tokens); // Comment or uncomment for debuging
 
             //Parse the input
             Parser parser = new Parser(tokens);
             Expr expr = parser.Parse();
-            // DebugParser(expr); // Comentar o descomentar para debugear
+            // DebugParser(expr); // Comment or uncomment for debuging
 
             // Interpret the input
             Interpreter interpreter = new Interpreter();
             return interpreter.Interpret(expr);
         }
-        //If an exception is launched, means an error ocurred and so the processing of this expression is ended.
-        catch(HandledException e){
+        //If an exception is launched, means an error ocurred ,so stop the process.
+        catch(HulkException){
             return null;
         }
+        //For unexpected exceptions
         catch(Exception e){
             Console.WriteLine("UNHANDLED EXCEPTION");
             Console.WriteLine(e.Message);
@@ -55,33 +58,32 @@ class Hulk{
         }
     }
 
-    //Maneja la presentacion de los errores en pantalla
+    //Handle general error printing on the CLI.
     private static void Error(string message, string errorType = "ERROR"){
         Console.Error.WriteLine("! "+ errorType + "    " + message);
     }
-    internal static void ScannerError(ScannerException e){
+    //Handle specific error printing on the CLI. 
+    internal static void Error(ScannerException e){
         Error(e.Message,e.ErrorType());
         Console.Error.WriteLine("In: " + e.Contexto);
         for(int i=0;i < 4 + e.Ofsset;++i)Console.Error.Write(' ');
         Console.Error.Write('^');
         Console.Error.WriteLine();
     }
-
-    internal static void ParserError(ParserException e){
+    internal static void Error(ParserException e){
+        Error(e.Message,e.ErrorType());
+    }
+    internal static void Error(InterpreterException e){
         Error(e.Message,e.ErrorType());
     }
 
-    internal static void InterpreterError(InterpreterException e){
-        Error(e.Message,e.ErrorType());
-    }
-
+    //Auxiliary methods for debuging purposes.
     private static void DebugScanner(List<Token> tokens){
         //Print tokens
         foreach(Token token in tokens){
              Console.WriteLine(token);
         }
     }
-
     private static void DebugParser(Expr expr){
         //Print the ast
         AstPrinter printer = new AstPrinter();

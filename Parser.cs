@@ -32,8 +32,9 @@ class Parser{
             }
         }
         catch(ParserException e){
-            Hulk.ParserError(e);
-            throw new HandledException();
+            e.HandleException();
+            //Unreachable code
+            return null;
         }
         
     }

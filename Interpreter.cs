@@ -12,8 +12,9 @@ class Interpreter : Visitor<object>{
             return Stringify(Evaluate(expr));
         }
         catch(InterpreterException e){
-            Hulk.InterpreterError(e);
-            throw new HandledException();
+            e.HandleException();
+            //Unreachable code
+            return null;
         }
     }
 

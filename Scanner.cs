@@ -39,8 +39,9 @@ class Scanner{
             tokens.Add(new Token(EOF,"",null));
             return this.tokens;
         }catch(ScannerException e){
-            Hulk.ScannerError(e);
-            throw new HandledException();
+            e.HandleException();
+            //Unreachable code
+            return null;
         }
     }
 
@@ -162,7 +163,7 @@ class Scanner{
 
         //No se cerraron las comillas dobles
         if(IsAtEnd()){
-            throw new ScannerException("Closing quote is missing.",source,start);
+            throw new ScannerException("A quote is missing.",source,start);
         }
 
         //Consume las comillas de cierre
