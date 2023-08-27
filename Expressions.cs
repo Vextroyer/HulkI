@@ -5,10 +5,19 @@ The tree is produced by the parser and then consumed by the interpreter.
 
 namespace Hulk;
 
+/*
+Base classfor expressions
+*/
 abstract class Expr{
-    public abstract R Accept<R> (Visitor<R> visitor);
+    public abstract R Accept<R> (Visitor<R> visitor);//
 }
-
+/*
+Classes that handle expressions should implement this interface.
+This work with the Accept  method on Expr class.
+With this scheme the class that implements the interface can have a method
+receive a object of type Expr, call its Accept method, wich then will call back
+the correct method for its type, Literal, Binary , etc.
+*/
 interface Visitor<R>{
      R VisitBinaryExpr(BinaryExpr expr);
      R VisitLiteralExpr(LiteralExpr expr);

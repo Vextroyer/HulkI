@@ -1,16 +1,15 @@
 /*
-El Scanner recibe un codigo fuente escrito en Hulk y devuelve una secuencia de
-tokens.
+The scanner receives a Hulk source code and transform it into a token sequence.
 */
 namespace Hulk;
 
 using static TokenType;
 
 class Scanner{
-    private string source;// Codigo fuente proveido al scanner
-    private List<Token> tokens = new List<Token>();// Tokens que conforman el codigo fuente
-    private int current = 0;//Caracter a ser procesado
-    private int start = 0;//Start of the current token
+    private string source;// Source code to be scanned
+    private List<Token> tokens = new List<Token>();// Token sequence to be produced.
+    private int current = 0;//Current character to be procesed.
+    private int start = 0;//Start of the current token.
 
     private static readonly Dictionary<string,TokenType> keywords = new Dictionary<string, TokenType>()
     {
@@ -29,14 +28,14 @@ class Scanner{
         this.source = source;
     }
 
-    //Escanea el codigo fuente y produce una lista de tokens
+    //Scan the source code and output a token sequence
     public List<Token> Scan(){
         try{
             while(!IsAtEnd()){
                 start = current;
                 ScanToken();
             }
-            tokens.Add(new Token(EOF,"",null));
+            tokens.Add(new Token(EOF,"",null));//Its elegant
             return this.tokens;
         }catch(ScannerException e){
             e.HandleException();
@@ -45,11 +44,11 @@ class Scanner{
         }
     }
 
-    //Escanea el siguiente token
+    //Scan next token
     private void ScanToken(){
         char c = Advance();
         switch(c){
-            
+            //One char tokens
             case '(': AddToken(LEFT_PAREN);break;
             
             case ')': AddToken(RIGHT_PAREN);break;
@@ -76,20 +75,22 @@ class Scanner{
             
             case '!': AddToken(Match('=')?BANG_EQUAL:BANG);break;
             
-            //Hay 3 operadores que comienzan con = : = , == , =>
+            //There are three operators that start with an '='. These are '=' '==' '=>'
             case '=':
                 if(Match('='))AddToken(EQUAL_EQUAL);
                 else if(Match('>'))AddToken(ARROW);
                 else AddToken(EQUAL);
                 break;
-
+            //Two operators start with a '<' . These are '<' '<='
             case '<': AddToken(Match('=')?LESS_EQUAL:LESS);break;
-            
+
+            //Two operators start with a '>' . These are '>' '>='
             case '>': AddToken(Match('=')?GREATER_EQUAL:GREATER);break;
             
+            //There is no colon operator in Hulk, but it is part of the destructive assignment operator ':='
             case ':': 
                 if(Match('='))AddToken(ASSIGN);
-                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",source,start);//No existe un token en Hulk compuesto por solo :
+                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",source,start);
                 break;
 
             //Strings literals
@@ -98,9 +99,9 @@ class Scanner{
                 break;
 
             //Ignore whitespaces
-            case ' ':
-            case '\t':
-            case '\n':
+            case ' '://Whitespace
+            case '\t'://Tab
+            case '\n'://Newline
                 break;
 
             default:
@@ -108,7 +109,7 @@ class Scanner{
                 if(IsDigit(c)){
                     ScanNumber();
                 }
-                //Identifier, nombre de variable o funcion
+                //Identifier, can be a variable name, a function name or a keyword
                 else if(IsAlpha(c)){
                     ScanIdentifier();
                 }
@@ -118,9 +119,9 @@ class Scanner{
                 break;
         }
     }
-    //Escanea un identificador, que puede ser un nombre de variable, funcion o keyword
+    //Scan an identifier. Can be a variable name, a function name or a keyword.
     private void ScanIdentifier(){
-        while(IsAlphaNumeric(Peek()))Advance();//Consume todos los caracteres posibles (Maximal Munch)
+        while(IsAlphaNumeric(Peek()))Advance();//Consume every posible character (Maximal Munch principle)
 
         string lexema = source.Substring(start,current - start);
         TokenType type;
@@ -132,27 +133,26 @@ class Scanner{
         }
         AddToken(type);
     }
-    //Escanea un literal numerico
+    //Scan a number literal
     private void ScanNumber(){
-        while(IsDigit(Peek()))Advance();//Consume los digitos
+        while(IsDigit(Peek()))Advance();//Consume the leading digits
         
-        //Si hay un punto y caracteres decimales despues,este es un numero real
+        //If there exist a dot an at least a digit after the dot its a real number.
         if(Peek() == '.' && IsDigit(PeekNext())){
-            Advance();//Consume el '.'
-            while(IsDigit(Peek()))Advance();//Consume los digitos
+            Advance();//Consume the '.'
+            while(IsDigit(Peek()))Advance();//Consume the trailing digits
         }
 
         AddToken(NUMBER,float.Parse(source.Substring(start,current - start)));
     }
-    //Scan a strng literal, el ultimo caracter procesado fue un "
-    //Lee caracteres hasta que encuentre el siguiente "
-    //Si llega al final sin encontrarlo es un error
+    //Scan a string literal, the previous character was a quote '"'
+    //Consume characters until it hits another quote. If the end is reached then a quote is missing.
     private void ScanString(){
-        //Este while para si se llego al final o se encontraron las comillas dobles
+        //Stop at end or if a quote is found
         while(!IsAtEnd() && Peek() != '"'){
-            char actual = Advance();
+            char actual = Advance();//Last consumed character
 
-            //If the actual character is \ and next is " then th quote must not be interpreted
+            //If the actual character is '\' and next is '"' then the quote must not be interpreted
             //as an enclosing quote but as an escaped quote.
             if(actual == '\\' && !IsAtEnd() && Peek() == '"'){
                 Advance();
@@ -161,21 +161,21 @@ class Scanner{
             }
         }
 
-        //No se cerraron las comillas dobles
+        //A quote is missing
         if(IsAtEnd()){
             throw new ScannerException("A quote is missing.",source,start);
         }
 
-        //Consume las comillas de cierre
+        //Consume the closing quote
         Advance();
 
-        //El valor del string incluye todo el string excepto las comillas dobles de apertura y cierre
+        //The string content without the enclosing quotes
         string value = source.Substring(start + 1,current - start - 2);
         
         //Escape characters if any
-        value = value.Replace("\\t","\t");
-        value = value.Replace("\\n","\n");
-        value = value.Replace("\\\"","\"");
+        value = value.Replace("\\t","\t");//Transform the pattern \t into a tab character
+        value = value.Replace("\\n","\n");//Transform the pattern \n into a newline character
+        value = value.Replace("\\\"","\"");//Transform the \" pattern into a quote character
 
         AddToken(STRING,value);
     }
@@ -189,24 +189,24 @@ class Scanner{
         tokens.Add(new Token(type,lexema,literal));
     }
 
-    //Quedan caracteres por procesar, llego al final del codigo fuente
+    //Hit the end of the source code
     private bool IsAtEnd(){
         return current >= source.Length;
     }
 
-    //Consume el caracter actual y mueve current al siguiente
+    //Returns the character at current position and move current one position ahead. This is called consume the character.
     private char Advance(){
         ++current;
         return source[current - 1];
     }
-    //Devuelve el caracter actual sin consumirlo, no mueve current
+    //Return the character at current position but do not move current. 
     private char Peek(){
-        if(IsAtEnd())return '\0';//Garantiza que una llamada a Peek no lance una excepcion
+        if(IsAtEnd())return '\0';//Guarantee that a call to this method does not throw an exception. 
         return source[current];
     }
-    //Devuelve el caracter siguiente sin consumirlo, no mueve current
+    //Return the character one position ahead of current but do not move current. This is called lookahead.
     private char PeekNext(){
-        if(current + 1 >= source.Length)return '\0';//Garantiza que una llamada a Peek no lance una excepcion
+        if(current + 1 >= source.Length)return '\0';//Guarantee that a call to this method does not throw an exception.
         return source[current + 1];
     }
     //Conditional advance, si el caracter actual coincide con el dado retorna verdadero y consume el caracter actual,
@@ -217,18 +217,19 @@ class Scanner{
         ++current;
         return true;
     }
-    //Devuelve verdadero si el caracter es un digito entre [0,9]
+    //Return true if the character is a decimal digit [0,9], otherwhise return false.
     private bool IsDigit(char c){
         if('0' <= c && c <= '9')return true;
         return false;
     }
-    //Devuelve verdadero si el caracter es una letra o un underscore _
+    //Return true if the character is a letter or an underscore '_'
+    //
     private bool IsAlpha(char c){
         return ('a' <= c && c <= 'z') ||
                ('A' <= c && c <= 'Z') ||
                (c == '_');
     }
-    //Devuelve verdadero si es letra o digito
+    //Return true if the character is a letter, a digit or an underscore.
     private bool IsAlphaNumeric(char c){
         return IsDigit(c) || IsAlpha(c);
     }

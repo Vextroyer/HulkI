@@ -13,11 +13,11 @@ class AstPrinter : Visitor<string>{
 
     public string VisitBinaryExpr(BinaryExpr expr){
         
-        return expr.Operation.Lexema + "(" + Print(expr.Left) + " " + Print(expr.Right) + ")";
+        return expr.Operation.Lexeme + "(" + Print(expr.Left) + " " + Print(expr.Right) + ")";
     }
 
     public string VisitUnaryExpr(UnaryExpr expr){
-        return expr.Operation.Lexema + " (" + Print(expr.Expression) + ")";
+        return expr.Operation.Lexeme + " (" + Print(expr.Expression) + ")";
     }
 
     public string VisitLiteralExpr(LiteralExpr expr){

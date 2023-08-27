@@ -20,9 +20,9 @@ struct Test
 static class Tester{
     private static Test[] tests = new Test[] {
         //Literals
-        new Test("2.141527","2.141527"),//Numero en coma flotante
-        new Test("12","12"),//Numero entero
-        new Test("\"Pedrito fue a la escuela.\"","Pedrito fue a la escuela."),//Literal de cadena
+        new Test("2.141527","2.141527"),//Floating point number
+        new Test("12","12"),//Integer
+        new Test("\"Pedrito fue a la escuela.\"","Pedrito fue a la escuela."),//String literal
         new Test("\"\\\"This is a quoted string\\\"\"","\"This is a quoted string\""),//Escaped quote
         new Test("\"This is on line 1.\\nThis is on line 2.\"","This is on line 1.\nThis is on line 2."),//Escaped newline
         new Test("\"Iam\\ttabbed\"","Iam\ttabbed"),//Escaped tab
@@ -33,7 +33,7 @@ static class Tester{
         new Test("PI",Math.PI.ToString()),
         new Test("E",Math.E.ToString()),
 
-        // //Concatenaciones de cadenas
+        // //String concatenation
         new Test("\"alfa\" @ \"beta\" @ \"ganma\"", "alfabetaganma"),
 
         //Unary
@@ -46,14 +46,14 @@ static class Tester{
         new Test("--1","1"),
         new Test("---15.37","-15.37"),
 
-        //Operaciones aritmeticas con enteros
-        new Test("2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10","54"),//Suma
-        new Test("2 - 3 - 4 - 5 - 6","-16"),//Resta
-        new Test("2 * 3 * 4 * 5","120"),//Multiplicacion
+        //Integer arithmetic
+        new Test("2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10","54"),//Sum
+        new Test("2 - 3 - 4 - 5 - 6","-16"),//Substraction
+        new Test("2 * 3 * 4 * 5","120"),//Multiplication
         new Test("4 / 2","2"),//Division
-        new Test("4^3^2","262144"),//Potenciacion
+        new Test("4^3^2","262144"),//Power
         
-        //Operaciones aritmeticas con numeros reales
+        //Real numbers arithmetic
         new Test("2.14 - 3.14 + 0.86","-0.14"),//Rouding Error because of floating point representation imprecisions
         new Test("3 + 10 / 5","5"),
         new Test("10 / 5 + 3","5"),
@@ -101,7 +101,7 @@ static class Tester{
         new Test("(((((\"hello world!\")))))","hello world!"),
         new Test("1 + (3 - 4 * (12 - 574) + 3.14 - (-5 / 2.5))",(1 + (3 - 4 * (12 - 574) + 3.14 - (-5 / 2.5))).ToString()),
 
-        //Comparaciones
+        //Comparison
         new Test("2 > 3","False"),
         new Test("3 > 2","True"),
         new Test("2 + 3 < 3 + 2","False"),

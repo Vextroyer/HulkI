@@ -1,25 +1,29 @@
 /*
-Representa un token devuelto por el scanner
+Represents a token. 
 */
 
 namespace Hulk;
 
 class Token{
-    //El tipo de este token
     public TokenType Type {get; private set;}
-    //Texto en el codigo fuente desde el que se genero el token
-    public string Lexema {get; private set;}
-    //Valor que contiene este token
+
+    //Portion of text on the source code from wich this token was created.
+    //For example, a PLUS token is generated always from a '+' in the source code
+    //A number can be generated from '15.29' in the source code
+    //A string from a '"This is a string literal"' in the source code.
+    public string Lexeme {get; private set;}
+
+    //Value, for example if the token is of type NUMBER the value can be 17
     public object? Literal {get; private set;}
 
     public Token(TokenType type,string lexema,object? literal){
         this.Type = type;
-        this.Lexema = lexema;
+        this.Lexeme = lexema;
         this.Literal = literal;
     }
 
     public override string ToString()
     {
-        return this.Type + " " + this.Lexema + " " + this.Literal;
+        return this.Type + " " + this.Lexeme + " " + this.Literal;
     }
 }

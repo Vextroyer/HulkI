@@ -1,5 +1,5 @@
 /*
-Parse a token list and produce an abstract syntax tree
+Parse a token list and produce an abstract syntax tree (AST).
 */
 
 namespace Hulk;
@@ -22,11 +22,12 @@ class Parser{
                 else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.");
             }
             else{
-                //Si no existe ;
+                //If doesnt exist a ';'
                 if(!HasSemicolon())throw new ParserException("Expression must end in a ';'");
-                //Si existe entonces hay tokens que no fueron interpretados
+                
+                //If exist a ';' then there are tokens before the ';' that where not parsed.
 
-                //Si es un parentesis de cierre entonces falta el de apertura
+                //If the current token is a closing paren then the opening paren is missing.
                 if(Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing opening paren.");
                 throw new ParserException("Malformed expresion.");
             }
@@ -45,7 +46,7 @@ class Parser{
         //Fall to the next
         return Or();
     }
-    //Representa las operaciones logicas and(&) y or(|)
+    //Logical or '|'
     private Expr Or(){
         Expr expr = And();
         while(Match(TokenType.PIPE)){
@@ -55,7 +56,7 @@ class Parser{
         }
         return expr;
     }
-
+    //Logical and '&'
     private Expr And(){
         Expr expr = Equality();
         while(Match(TokenType.AMPERSAND)){
@@ -66,7 +67,7 @@ class Parser{
         return expr;
     }
 
-    //Representa igualdades
+    //Equality operators '==' '!='
     private Expr Equality(){
         Expr expr = Comparison();
         if(Match(TokenType.EQUAL_EQUAL,TokenType.BANG_EQUAL)){
@@ -77,7 +78,7 @@ class Parser{
         return expr;
     }
 
-    //Representa comparaciones : < <= > >=
+    //Comparison operators '<' '<=' '>' '>='
     private Expr Comparison(){
         Expr expr = Term();
         if(Match(TokenType.LESS,TokenType.LESS_EQUAL,TokenType.GREATER,TokenType.GREATER_EQUAL)){
@@ -88,7 +89,7 @@ class Parser{
         return expr;
     }
 
-    //Sumas, restas y concatenaciones de cadenas
+    //Substractions, sums and concatenations '-' '+' '@'
     private Expr Term(){
         Expr expr = Factor();
         while(Match(TokenType.MINUS,TokenType.PLUS,TokenType.AT)){
@@ -99,7 +100,7 @@ class Parser{
         return expr;
     }
 
-    //Productos y cocientes
+    //Divisions and multiplications '/' '*'
     private Expr Factor(){
         Expr expr = Power();
         while(Match(TokenType.SLASH,TokenType.STAR)){
@@ -110,7 +111,7 @@ class Parser{
         return expr;
     }
 
-    //Potencias (Rigth to left associative)
+    //Exponentiation '^' (Rigth to left associative)
     private Expr Power(){
         Expr expr = Unary();
         while(Match(TokenType.CARET)){
@@ -120,7 +121,7 @@ class Parser{
         }
         return expr;
     }
-
+    //Unary operators '!' '-'
     private Expr Unary(){
         switch(Peek().Type){
             case TokenType.MINUS:
@@ -141,7 +142,7 @@ class Parser{
         }
         return Literal();
     }
-
+    //Numbers, string literals, true, false, Euler constant and Pi constant
     private Expr Literal(){
         switch(Peek().Type){
             //String or number literal
@@ -182,7 +183,8 @@ class Parser{
         ++current;
         return tokens[current - 1];
     }
-    //Retorna verdadero si el token actual coincide con cualquiera de los tokens proporcionados y lo consume. De ser falso no lo consume.
+    //If the current token match any of the given tokens advance an return true, if not return false and keep current.
+    //It is a conditional advance.
     private bool Match(params TokenType[] types){
         foreach(TokenType type in types){
             if(type == Peek().Type){
@@ -192,12 +194,12 @@ class Parser{
         }
         return false;
     }
-    //Retorna el token anterior
+    //Return the previous token.
     private Token Previous(){
         return tokens[current - 1];
     }
 
-    //Returns true if there exist a semicolon on the remaining tokens
+    //Returns true if there exist a semicolon on the remaining tokens.
     private bool HasSemicolon(){
         for(int i=current;i<tokens.Count;++i){
             if(tokens[i].Type == TokenType.SEMICOLON)return true;

@@ -12,6 +12,26 @@ class Hulk{
             Environment.Exit(0);
         }
 
+        //Error Mode
+        //This is a provisional mode for evaluating expressions from a file
+        if(args.Length > 0){
+            //Open the file
+            StreamReader errors = new StreamReader("Error.aux");
+            
+            //While is not at end
+            while(!errors.EndOfStream){
+                string line = errors.ReadLine();
+                if(string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line))continue;
+                line.Trim();
+                if(line.StartsWith('#'))continue;//A comment
+                Console.WriteLine("> " + line);
+                Run(line);//It will always throw an exception because its for cheking errors
+            }
+
+            //Close it
+            errors.Close();
+            Environment.Exit(0);
+        }
 
         //Interactive mode
         while(true){

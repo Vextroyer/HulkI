@@ -1,14 +1,14 @@
 /*
-Tipos de tokens en Hulk
+Types of tokens in Hulk
 */
 
 namespace Hulk;
 
 enum TokenType
 {
-    //Tokens de un solo caracter
+    //One char tokens
     LEFT_PAREN,RIGHT_PAREN,COMMA,MINUS,PLUS,SEMICOLON,SLASH,STAR,CARET,AT,AMPERSAND,PIPE,
-    //Tokens de uno o dos caracteres
+    //One or two char tokens
     BANG, BANG_EQUAL,
     EQUAL,EQUAL_EQUAL,
     LESS,LESS_EQUAL,
