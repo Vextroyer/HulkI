@@ -19,7 +19,7 @@ class Parser{
             //Expressions must end in a ;
             if(Match(TokenType.SEMICOLON)){
                 if(Match(TokenType.EOF))return expr;
-                else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.");
+                else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.",GetOffset());
             }
             else{
                 //If doesnt exist a ';'
@@ -28,8 +28,8 @@ class Parser{
                 //If exist a ';' then there are tokens before the ';' that where not parsed.
 
                 //If the current token is a closing paren then the opening paren is missing.
-                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing opening paren.");
-                throw new ParserException("Malformed expresion.");
+                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing opening paren.",GetOffset() - 1);
+                throw new ParserException("Malformed expresion.",GetOffset());
             }
         }
         catch(ParserException e){
@@ -137,7 +137,7 @@ class Parser{
     private Expr Grouping(){
         if(Match(TokenType.LEFT_PAREN)){
             Expr expr = Expression();
-            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing close paren.");
+            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing close paren.",GetOffset());
             return expr;
         }
         return Literal();
@@ -171,7 +171,7 @@ class Parser{
 
     //Helper method that launch an exception
     private Expr Unrecognized(){
-        throw new ParserException("Unrecognized Expresion.");
+        throw new ParserException("Unrecognized Expresion.",GetOffset());
     }
 
     //Return the next token to be procesed without advancing current
@@ -205,5 +205,9 @@ class Parser{
             if(tokens[i].Type == TokenType.SEMICOLON)return true;
         }
         return false;
+    }
+    //Get the initial position of the current token in the source code
+    private int GetOffset(){
+        return tokens[current].Offset;
     }
 }

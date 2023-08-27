@@ -59,53 +59,53 @@ class Interpreter : Visitor<object>{
         object right = Evaluate(expr.Right);
         switch(expr.Operation.Type){
             case TokenType.PLUS:// +
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left + (float)right;
 
             case TokenType.MINUS:// -
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left - (float)right;
 
             case TokenType.AT:// @
-                CheckStringOperand(expr.Operation,left);
-                CheckStringOperand(expr.Operation,right);
+                CheckStringOperand(expr.Operation,left,-1);
+                CheckStringOperand(expr.Operation,right,1);
                 return (string)left + (string)right;
 
             case TokenType.STAR:// *
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left * (float)right;
             
             case TokenType.SLASH:// /
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left / (float)right;
 
             case TokenType.CARET:// ^
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float) Math.Pow((float)left,(float)right);//Cast the pow result to keep types consistent
             
             case TokenType.LESS:// <
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left < (float)right;
 
             case TokenType.LESS_EQUAL:// <=
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left <= (float)right;
 
             case TokenType.GREATER:// >
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left > (float)right;
             
             case TokenType.GREATER_EQUAL:// >=
-                CheckNumberOperand(expr.Operation,left);
-                CheckNumberOperand(expr.Operation,right);
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
                 return (float)left >= (float)right;
 
             case TokenType.EQUAL_EQUAL:// ==
@@ -115,13 +115,13 @@ class Interpreter : Visitor<object>{
                 return !IsEqual(left,right);
 
             case TokenType.AMPERSAND:// &
-                CheckBoolOperand(expr.Operation,left);
-                CheckBoolOperand(expr.Operation,right);
+                CheckBoolOperand(expr.Operation,left,-1);
+                CheckBoolOperand(expr.Operation,right,1);
                 return (bool)left && (bool)right;
 
             case TokenType.PIPE:// |
-                CheckBoolOperand(expr.Operation,left);
-                CheckBoolOperand(expr.Operation,right);
+                CheckBoolOperand(expr.Operation,left,-1);
+                CheckBoolOperand(expr.Operation,right,1);
                 return (bool)left || (bool)right;
         }
         return null;
@@ -138,20 +138,33 @@ class Interpreter : Visitor<object>{
         if(value is bool)return (bool)value;
         return true;
     }
-    //Check if the object is a number, throw if not
-    private void CheckNumberOperand(Token operation, object value){
+    //Check if the object is of the expected type, throw if not
+    //Pos is an optional value to indicate if it is a left operand or a right operand.
+    // Pos = -1 , left
+    // Pos = 1  , right
+    // Pos = 0  , default
+    private void CheckNumberOperand(Token operation, object value, int pos = 0){
         if(!(value is float)){
-            throw new InterpreterException("Incorrect operand type for "+operation.Lexeme+" operator. Number expected and "+ value.GetType().Name  +" was found.");
+            throw new InterpreterException("Incorrect" + SetPosString(pos) + "operand type for "+operation.Lexeme+" operator. Number expected and "+ GetType(value)  +" was found.",operation.Offset);
         }
     }
-    private void CheckStringOperand(Token operation, object value){
+    private void CheckStringOperand(Token operation, object value, int pos = 0){
         if(!(value is string)){
-            throw new InterpreterException("Incorrect operand type for "+operation.Lexeme+" operator. String expected and "+ value.GetType().Name  +" was found.");
+            throw new InterpreterException("Incorrect" + SetPosString(pos) + "operand type for "+operation.Lexeme+" operator. String expected and "+ GetType(value) +" was found.",operation.Offset);
         }
     }
-    private void CheckBoolOperand(Token operation, object value){
+    private void CheckBoolOperand(Token operation, object value, int pos = 0){
         if(!(value is bool)){
-            throw new InterpreterException("Incorrect operand type for "+operation.Lexeme+" operator. Boolean expected and "+ value.GetType().Name  +" was found.");
+            throw new InterpreterException("Incorrect" + SetPosString(pos) + "operand type for "+operation.Lexeme+" operator. Boolean expected and "+ GetType(value) +" was found.",operation.Offset);
         }
+    }
+    private string SetPosString(int pos){
+        if(pos == -1)return " left ";
+        if(pos == 1)return " right ";
+        return " ";
+    }
+    private string GetType(object value){
+        if(value is float)return "Number";
+        return value.GetType().Name;
     }
 }

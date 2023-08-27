@@ -45,12 +45,18 @@ class Hulk{
         }
     }
 
+    //The last line of source code, for printing errors
+    private static string lastLine;
+
     //Interpret and run the content of of the source.
     //Return the result of evaluate the expression or null if an error ocurred.
     //In the case of an error it will automatically report it before returning.
     public static string? Run(string? source){
         if(string.IsNullOrEmpty(source))throw new ArgumentException();
         try{
+            //Last line of source code.
+            lastLine = source;
+
             //Scan the input
             Scanner scanner = new Scanner(source);
             List<Token> tokens;
@@ -79,22 +85,23 @@ class Hulk{
     }
 
     //Handle general error printing on the CLI.
-    private static void Error(string message, string errorType = "ERROR"){
+    private static void Error(string message, int offset, string errorType = "ERROR"){
         Console.Error.WriteLine("! "+ errorType + "    " + message);
-    }
-    //Handle specific error printing on the CLI. 
-    internal static void Error(ScannerException e){
-        Error(e.Message,e.ErrorType());
-        Console.Error.WriteLine("In: " + e.Contexto);
-        for(int i=0;i < 4 + e.Ofsset;++i)Console.Error.Write(' ');
+        if(offset <= -1)return;
+        Console.Error.WriteLine("In: " + lastLine);
+        for(int i=0;i < 4 + offset;++i)Console.Error.Write(' ');
         Console.Error.Write('^');
         Console.Error.WriteLine();
     }
+    //Handle specific error printing on the CLI. 
+    internal static void Error(ScannerException e){
+        Error(e.Message,e.Ofsset,e.ErrorType());
+    }
     internal static void Error(ParserException e){
-        Error(e.Message,e.ErrorType());
+        Error(e.Message,e.Ofsset,e.ErrorType());
     }
     internal static void Error(InterpreterException e){
-        Error(e.Message,e.ErrorType());
+        Error(e.Message,e.Ofsset,e.ErrorType());
     }
 
     //Auxiliary methods for debuging purposes.

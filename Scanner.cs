@@ -35,7 +35,7 @@ class Scanner{
                 start = current;
                 ScanToken();
             }
-            tokens.Add(new Token(EOF,"",null));//Its elegant
+            tokens.Add(new Token(EOF,"",null,source.Length));//Its elegant
             return this.tokens;
         }catch(ScannerException e){
             e.HandleException();
@@ -90,7 +90,7 @@ class Scanner{
             //There is no colon operator in Hulk, but it is part of the destructive assignment operator ':='
             case ':': 
                 if(Match('='))AddToken(ASSIGN);
-                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",source,start);
+                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",start);
                 break;
 
             //Strings literals
@@ -114,7 +114,7 @@ class Scanner{
                     ScanIdentifier();
                 }
                 else{
-                    throw new ScannerException("Invalid character.",source,current - 1);
+                    throw new ScannerException("Invalid character.",current - 1);
                 }
                 break;
         }
@@ -163,7 +163,7 @@ class Scanner{
 
         //A quote is missing
         if(IsAtEnd()){
-            throw new ScannerException("A quote is missing.",source,start);
+            throw new ScannerException("A quote is missing.",start);
         }
 
         //Consume the closing quote
@@ -186,7 +186,7 @@ class Scanner{
     }
     private void AddToken(TokenType type,object? literal){
         string lexema = source.Substring(start,current - start);
-        tokens.Add(new Token(type,lexema,literal));
+        tokens.Add(new Token(type,lexema,literal,start));
     }
 
     //Hit the end of the source code
