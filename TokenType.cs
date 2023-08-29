@@ -7,7 +7,7 @@ namespace Hulk;
 enum TokenType
 {
     //One char tokens
-    LEFT_PAREN,RIGHT_PAREN,COMMA,MINUS,PLUS,SEMICOLON,SLASH,STAR,CARET,AT,AMPERSAND,PIPE,
+    LEFT_PAREN,RIGHT_PAREN,COMMA,MINUS,PLUS,SEMICOLON,SLASH,PERCENT,STAR,CARET,AT,AMPERSAND,PIPE,
     //One or two char tokens
     BANG, BANG_EQUAL,
     EQUAL,EQUAL_EQUAL,
@@ -21,7 +21,7 @@ enum TokenType
     EOF
 }
 
-// ( ) , - + ; / * ^ @ & |
+// ( ) , - + ; / % * ^ @ & |
 // ! !=
 // = ==
 // < <=

@@ -52,6 +52,8 @@ static class Tester{
         new Test("2 * 3 * 4 * 5","120"),//Multiplication
         new Test("4 / 2","2"),//Division
         new Test("4^3^2","262144"),//Power
+        new Test("15 % 4 % 2","1"),//Modulus
+        new Test("16%4","0"),
         
         //Real numbers arithmetic
         new Test("2.14 - 3.14 + 0.86","-0.14"),//Rouding Error because of floating point representation imprecisions

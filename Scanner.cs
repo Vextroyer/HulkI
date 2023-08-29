@@ -62,6 +62,8 @@ class Scanner{
             case ';': AddToken(SEMICOLON);break;
             
             case '/': AddToken(SLASH);break;
+
+            case '%': AddToken(PERCENT);break;
             
             case '*': AddToken(STAR);break;
             

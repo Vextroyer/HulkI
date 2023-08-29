@@ -77,6 +77,11 @@ class Interpreter : Visitor<object>{
                 CheckNumberOperand(expr.Operation,left,-1);
                 CheckNumberOperand(expr.Operation,right,1);
                 return (float)left * (float)right;
+
+            case TokenType.PERCENT:// %
+                CheckNumberOperand(expr.Operation,left,-1);
+                CheckNumberOperand(expr.Operation,right,1);
+                return (float)left % (float)right;
             
             case TokenType.SLASH:// /
                 CheckNumberOperand(expr.Operation,left,-1);

@@ -103,7 +103,7 @@ class Parser{
     //Divisions and multiplications '/' '*'
     private Expr Factor(){
         Expr expr = Power();
-        while(Match(TokenType.SLASH,TokenType.STAR)){
+        while(Match(TokenType.SLASH,TokenType.PERCENT,TokenType.STAR)){
             Token operation = Previous();
             Expr right = Power();
             expr = new BinaryExpr(expr,operation,right);
