@@ -11,6 +11,10 @@ class AstPrinter : Visitor<string>{
         return expr.Accept(this);
     }
 
+    public string VisitConditionalExpr(ConditionalExpr expr){
+        return "if-else (" + Print(expr.Condition) + " , " + Print(expr.IfBranchExpr) + " , " + Print(expr.ElseBranchExpr) + ")";
+    }
+
     public string VisitBinaryExpr(BinaryExpr expr){
         
         return expr.Operation.Lexeme + "(" + Print(expr.Left) + " " + Print(expr.Right) + ")";

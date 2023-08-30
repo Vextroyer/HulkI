@@ -19,6 +19,7 @@ receive a object of type Expr, call its Accept method, wich then will call back
 the correct method for its type, Literal, Binary , etc.
 */
 interface Visitor<R>{
+    R VisitConditionalExpr(ConditionalExpr expr);
      R VisitBinaryExpr(BinaryExpr expr);
      R VisitLiteralExpr(LiteralExpr expr);
      R VisitUnaryExpr(UnaryExpr expr);
@@ -69,5 +70,28 @@ class BinaryExpr : Expr{
     public override R Accept<R>(Visitor<R> visitor)
     {
         return visitor.VisitBinaryExpr(this);
+    }
+}
+//Represents an if-else or conditional expression.
+class ConditionalExpr : Expr{
+    public Expr Condition{get; private set;}
+    public Expr IfBranchExpr{get; private set;}
+    public Expr ElseBranchExpr{get; private set;}
+
+    //For error printing purposes
+    public int IfOffset{get; private set;}
+    public int ElseOffset{get; private set;}
+
+    public ConditionalExpr(Expr condition, Expr ifBranchExpr, Expr elseBranchExpr, int ifOffset = -1, int elseOffset = -1){
+        Condition = condition;
+        IfBranchExpr = ifBranchExpr;
+        ElseBranchExpr = elseBranchExpr;
+        IfOffset = ifOffset;
+        ElseOffset = elseOffset;
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitConditionalExpr(this);
     }
 }

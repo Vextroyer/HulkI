@@ -44,8 +44,54 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
+        return Conditional();
+    }
+    // If - else expression
+    private Expr Conditional(){
+        int ifOffset = -1;
+        int elseOffset = -1;
+        if(Match(TokenType.IF)){
+            //An if token has been consumed
+            ifOffset = Previous().Offset;
+            //There must be a parenthesized expression, so check for opening paren
+            if(Peek().Type == TokenType.LEFT_PAREN){
+                //If there is a closing paren right after the opening paren thats an error because there is no expression
+                //to be evaluated.
+                if(PeekNext().Type == TokenType.RIGHT_PAREN)throw new ParserException("Empty parens not allowed after if. They must contain an expression.",GetOffset());
+                
+                //It is necesary to check if exist a paren before calling Grouping because
+                //it also handles expressinons without parens and this could lead to confusing errors.
+                Expr condition = Grouping();//This consumes both parens
+
+                //An else right after the pares means an empty expression, thats not allowed
+                if(Peek().Type == TokenType.ELSE)throw new ParserException("No expression found on the 'if' branch.",GetOffset());
+
+                Expr ifBranchExpr = Expression();
+
+                //After the if branch expression comes the else keyword
+                if(!Match(TokenType.ELSE))throw new ParserException("Expected 'else' and '" + Peek().Lexeme + "' was found.",GetOffset());
+                
+                elseOffset = Previous().Offset;
+
+                //An exception may arise if the else branch expression is empty
+                Expr elseBranchExpr;
+                try{
+                    elseBranchExpr = Expression();
+                }catch(ParserException){
+                    throw new ParserException("No expression found on the 'else' branch.",elseOffset);
+                }
+                
+
+                return new ConditionalExpr(condition,ifBranchExpr,elseBranchExpr,ifOffset,elseOffset);
+            }else{
+                //No paren after an if is a syntactic error
+                throw new ParserException("Expected '()' after if.",Previous().Offset + 1);
+            }
+        }
+        //Fall to next
         return Or();
     }
+
     //Logical or '|'
     private Expr Or(){
         Expr expr = And();
@@ -177,6 +223,10 @@ class Parser{
     //Return the next token to be procesed without advancing current
     private Token Peek(){
         return tokens[current];
+    }
+    //Return the token after current without advancing current
+    private Token PeekNext(){
+        return tokens[current + 1];
     }
     //Return the current token and advance current
     private Token Advance(){

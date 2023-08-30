@@ -131,7 +131,18 @@ class Interpreter : Visitor<object>{
         }
         return null;
     }
-
+    /*
+    Evaluates a conditional expression. if-else
+    */
+    public object VisitConditionalExpr(ConditionalExpr expr){
+        object condition = Evaluate(expr.Condition);
+        if(condition is bool){
+            //Only a branch of the if-else expression will be interpreted.
+            if((bool)condition)return Evaluate(expr.IfBranchExpr);
+            return Evaluate(expr.ElseBranchExpr);
+        }
+        throw new InterpreterException("Boolean expected but the 'if' condition is of type " + GetType(condition) + " and evaluates to '" + condition.ToString()+"'",expr.IfOffset + 1);
+    }
     //Are this objects equal in terms of value
     private bool IsEqual(object left,object right){
         return Equals(left,right);

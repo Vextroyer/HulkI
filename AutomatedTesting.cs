@@ -150,7 +150,17 @@ static class Tester{
         new Test("!(true | false)","False"),
         new Test("3 >= 2 & 3 <= 2","False"),
         new Test("3 >= 2 & 2 >= 3","False"),
-        new Test("3.14 - PI <= 0 | false","True")
+        new Test("3.14 - PI <= 0 | false","True"),
+        //if-else
+        new Test("if (true) 5 else 6","5"),
+        new Test("if (false) 5 else 6","6"),
+        new Test("2 + (if (2 <= 3) 5 ^ 3 else 24 / 14.3)","127"),
+        new Test("if( 2 * 8 <= 15 | !( if (\"test\" @ \"ear\" == \"testear\") 4 <= 4 ^ 1 / 4 else false ) ) \"Entre aqui\" else -1 ","Entre aqui"),
+        new Test("(if(\"Pedrito\" == \"Calvo\") 54 else 27 ^ (2 + 1) - 1) % 27","26"),
+        new Test("if (3.14 - PI < 0) \"Is under my Pi\" else if (3.14 - PI == 0) \"Is on my Pi\" else \"Is over my Pi\"","Is under my Pi"),
+        new Test("if (3.14 - PI > 0) \"Is under my Pi\" else if (3.14 - PI == 0) \"Is on my Pi\" else \"Is over my Pi\"","Is over my Pi"),
+        new Test("if (3.14 - PI > 0) \"Is under my Pi\" else if (3.14 - PI < 0) \"Is on my Pi\" else \"Is over my Pi\"","Is on my Pi"),
+        new Test ("if ( \"moves\" == \"e4 & d5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out")
     };
 
     public static  void Test(){
