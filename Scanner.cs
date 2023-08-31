@@ -88,12 +88,6 @@ class Scanner{
 
             //Two operators start with a '>' . These are '>' '>='
             case '>': AddToken(Match('=')?GREATER_EQUAL:GREATER);break;
-            
-            //There is no colon operator in Hulk, but it is part of the destructive assignment operator ':='
-            case ':': 
-                if(Match('='))AddToken(ASSIGN);
-                else throw new ScannerException("Invalid token ':' . Perhaps you mean ':=' .",start);
-                break;
 
             //Strings literals
             case '"':

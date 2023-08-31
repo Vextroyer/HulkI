@@ -13,7 +13,7 @@ enum TokenType
     EQUAL,EQUAL_EQUAL,
     LESS,LESS_EQUAL,
     GREATER,GREATER_EQUAL,
-    ASSIGN,ARROW,
+    ARROW,
     //Literals
     IDENTIFIER,STRING,NUMBER,
     //Keywords
