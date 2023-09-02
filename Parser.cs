@@ -29,6 +29,7 @@ class Parser{
 
                 //If the current token is a closing paren then the opening paren is missing.
                 if(Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing opening paren.",GetOffset() - 1);
+                if(Match(TokenType.EQUAL))throw new ParserException("Assignments can only be used on a 'let in' expression.",Previous().Offset);
                 throw new ParserException("Malformed expresion.",GetOffset());
             }
         }
@@ -44,8 +45,48 @@ class Parser{
 
     private Expr Expression(){
         //Fall to the next
+        return Declaration();
+    }
+
+    //A let-in expression
+    private Expr Declaration(){
+        if(Match(TokenType.LET)){
+            //Assigments part
+            List<AssignmentExpr> assignments = Assignment();
+            
+            //'In' part
+            if(!Match(TokenType.IN)){
+                if(Peek().Type == TokenType.IDENTIFIER)throw new ParserException("Identifier found. Are you missing a ',' ?",GetOffset());
+                throw new ParserException("'in' keyword expected before expression.",GetOffset());
+            }
+
+            Expr inBranchExpr = Expression();
+
+            return new LetInExpr(assignments,inBranchExpr);
+        }
         return Conditional();
     }
+    //An assignment expression. Can only occur in a let-in expression. Does not fall to other expressions.
+    private List<AssignmentExpr> Assignment(){
+        List<AssignmentExpr> assignments = new List<AssignmentExpr>();
+        //Handle comma separated assignments. Empty declarations after a let keyword are an error.
+        int round = -1;
+        do{
+            ++round;
+            if(!Match(TokenType.IDENTIFIER)){
+                if(Match(TokenType.PI,TokenType.EULER))throw new ParserException(Previous().Lexeme + " is a language constant and cannot be assigned a value.",Previous().Offset);
+                if(Match(TokenType.NUMBER,TokenType.STRING,TokenType.TRUE,TokenType.FALSE))throw new ParserException("Cannot assign a value to a literal.",Previous().Offset);
+                throw new ParserException("Assignment expected" + (round == 0 ? "." : " after ',' ."),Previous().Offset);
+            }
+            Token identifier = Previous();
+            if(!Match(TokenType.EQUAL))throw new ParserException("Equal sign '=' expected after '" + Previous().Lexeme + "'." ,Previous().Offset);
+            Expr rvalue = Expression();
+            assignments.Add(new AssignmentExpr(identifier,rvalue));
+        }while(Match(TokenType.COMMA));
+
+        return assignments;
+    }
+
     // If - else expression
     private Expr Conditional(){
         int ifOffset = -1;
@@ -210,6 +251,9 @@ class Parser{
             case TokenType.EULER:
                 Advance();
                 return new LiteralExpr((float)Math.E);
+            //Identifier
+            case TokenType.IDENTIFIER:
+                return new VariableExpr(Advance());
             default:
                 return Unrecognized();
         }

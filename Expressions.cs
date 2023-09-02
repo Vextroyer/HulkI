@@ -6,7 +6,7 @@ The tree is produced by the parser and then consumed by the interpreter.
 namespace Hulk;
 
 /*
-Base classfor expressions
+Base class for expressions
 */
 abstract class Expr{
     public abstract R Accept<R> (Visitor<R> visitor);//
@@ -19,10 +19,13 @@ receive a object of type Expr, call its Accept method, wich then will call back
 the correct method for its type, Literal, Binary , etc.
 */
 interface Visitor<R>{
+    R VisitVariableExpr(VariableExpr expr);
+    R VisitAssignmentExpr(AssignmentExpr expr);
+    R VisitLetInExpr(LetInExpr expr);
     R VisitConditionalExpr(ConditionalExpr expr);
-     R VisitBinaryExpr(BinaryExpr expr);
-     R VisitLiteralExpr(LiteralExpr expr);
-     R VisitUnaryExpr(UnaryExpr expr);
+    R VisitBinaryExpr(BinaryExpr expr);
+    R VisitLiteralExpr(LiteralExpr expr);
+    R VisitUnaryExpr(UnaryExpr expr);
 }
 
 //Represents string and number literals
@@ -93,5 +96,48 @@ class ConditionalExpr : Expr{
     public override R Accept<R>(Visitor<R> visitor)
     {
         return visitor.VisitConditionalExpr(this);
+    }
+}
+//Represents a let - in expression
+class LetInExpr : Expr{
+    public List<AssignmentExpr> Assignments {get; private set;}
+    public Expr InBranchExpr {get; private set;}
+
+    public LetInExpr(List<AssignmentExpr> assignments, Expr inBranchExpr){
+        Assignments = assignments;
+        InBranchExpr = inBranchExpr;
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitLetInExpr(this);
+    }
+}
+//Represents an assigment expression. Can only be used in a let-in expression.
+class AssignmentExpr : Expr{
+    public Token Identifier{get; private set;}
+    public Expr RValue{get; private set;}
+
+    public AssignmentExpr(Token identifier, Expr rvalue){
+        Identifier = identifier;
+        RValue = rvalue;
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitAssignmentExpr(this);
+    }
+}
+//Represents an identifier, a variable.
+class VariableExpr : Expr{
+    public Token Identifier {get; private set;}
+
+    public VariableExpr(Token identifier){
+        Identifier = identifier;
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitVariableExpr(this);
     }
 }

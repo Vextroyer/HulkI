@@ -160,7 +160,18 @@ static class Tester{
         new Test("if (3.14 - PI < 0) \"Is under my Pi\" else if (3.14 - PI == 0) \"Is on my Pi\" else \"Is over my Pi\"","Is under my Pi"),
         new Test("if (3.14 - PI > 0) \"Is under my Pi\" else if (3.14 - PI == 0) \"Is on my Pi\" else \"Is over my Pi\"","Is over my Pi"),
         new Test("if (3.14 - PI > 0) \"Is under my Pi\" else if (3.14 - PI < 0) \"Is on my Pi\" else \"Is over my Pi\"","Is on my Pi"),
-        new Test ("if ( \"moves\" == \"e4 & d5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out")
+        new Test ("if ( \"moves\" == \"e4 & d5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out"),
+        //Let - in expressions
+        new Test("let a = 1, b = 2 in a + b","3"),
+        new Test("let var = 5 in 6","6"),
+        new Test("let var = 5 in var","5"),
+        new Test("let var = 3 in let var = 4 in var","4"),
+        new Test("2 + (let var1 = 5 , var2 = 7 in (var1 * var2) ^ 2 )",(35 * 35 + 2).ToString()),
+        new Test("let a = \"number\", a = a @ \"two\" in a","numbertwo"),
+        new Test("let a = 2 in let a = 3 in let a = 4 in a","4"),
+        new Test("let a = 2 in a + (let a = 3 in a + (let a = 4 in a))","9"),
+        new Test("let moves = \"e4xd5\" in if(moves == \"e4xd5\") \"Scandinavian defense\" else \"Cant figure it out\"","Scandinavian defense"),
+        new Test("let moves = \"e3xd5\" in if(moves == \"e4xd5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out")
     };
 
     public static  void Test(){

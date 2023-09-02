@@ -27,4 +27,22 @@ class AstPrinter : Visitor<string>{
     public string VisitLiteralExpr(LiteralExpr expr){
         return expr.Value.ToString();
     }
+
+    public string VisitAssignmentExpr(AssignmentExpr expr){
+        return "= (" + expr.Identifier.Lexeme + "," + Print(expr.RValue) + ")";
+    }
+
+    public string VisitVariableExpr(VariableExpr expr){
+        return expr.Identifier.Lexeme;
+    }
+
+    public string VisitLetInExpr(LetInExpr expr){
+        string ret = "let-in {";
+        foreach(AssignmentExpr assignment in expr.Assignments){
+            ret += Print(assignment) + ",";
+        }
+        ret += "}";
+        ret += "(" + Print(expr.InBranchExpr) + ")";
+        return ret;
+    }
 }

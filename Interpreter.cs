@@ -7,6 +7,9 @@ namespace Hulk;
 class Interpreter : Visitor<object>{
     public Interpreter(){}
 
+    //A global excecution environment.
+    private Environment environment = new Environment();
+
     public string Interpret(Expr expr){
         try{
             return Stringify(Evaluate(expr));
@@ -142,6 +145,37 @@ class Interpreter : Visitor<object>{
             return Evaluate(expr.ElseBranchExpr);
         }
         throw new InterpreterException("Boolean expected but the 'if' condition is of type " + GetType(condition) + " and evaluates to '" + condition.ToString()+"'",expr.IfOffset + 1);
+    }
+    /*
+    Evaluates a let-in expression.
+    */
+    public object VisitLetInExpr(LetInExpr expr){
+        //Compute the assigments.
+        foreach(AssignmentExpr asignment in expr.Assignments){
+            environment.Set(asignment.Identifier,Evaluate(asignment.RValue));
+        }
+
+        //Evaluate the expression.
+        object value = Evaluate(expr.InBranchExpr);
+
+        //Uncompute the assignments.
+        foreach(AssignmentExpr asignment in expr.Assignments){
+            environment.Remove(asignment.Identifier);
+        }
+
+        return value;
+    }
+    /*
+    Evaluates an assigment.
+    */
+    public object VisitAssignmentExpr(AssignmentExpr expr){
+        throw new NotImplementedException();
+    }
+    /*
+    Evaluates a variable. Returns the value associated to the variable.
+    */
+    public object VisitVariableExpr(VariableExpr expr){
+        return environment.Get(expr.Identifier);
     }
     //Are this objects equal in terms of value
     private bool IsEqual(object left,object right){

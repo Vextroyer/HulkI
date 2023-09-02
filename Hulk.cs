@@ -9,7 +9,7 @@ class Hulk{
         if(args.Length > 0 && args[0] == "test")
         {
             Tester.Test();
-            Environment.Exit(0);
+            System.Environment.Exit(0);
         }
 
         //Error Mode
@@ -30,7 +30,7 @@ class Hulk{
 
             //Close it
             errors.Close();
-            Environment.Exit(0);
+            System.Environment.Exit(0);
         }
 
         //Interactive mode
