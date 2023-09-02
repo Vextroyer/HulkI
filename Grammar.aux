@@ -1,0 +1,30 @@
+Gramatica definida de modo recursivo descendente.
+
+Expression = Declaration;
+Declaration = ("let" Assignment "in" Expression) | Conditional;
+Conditional = ("if" "(" Expression ")" Expression "else" Expression) | Or;
+Or = And ("|" And)*;
+And = Comparison ("&" Comparison)*;
+Equality = Comparison ( ("==" | "!=") Comparison)?;
+Comparison = Factor ( (">" | ">=" | "<" | "<=") Factor)?;
+Term = Factor ( ("+" | "-" | "@") Factor)*;
+Factor = Power ( ("*" | "/") Power)*;
+Power = Unary ("^" Power)*;
+Unary = ("!" | "-")* Grouping;
+Grouping = ( "(" Expression ")" )? | Literal;
+Literal = NUMBER | STRING | "true" | "false" | "E" | "PI";
+
+Assignment = SingleAssignment ("," SingleAssignment)*
+SingleAssignment = ID "=" Expresion;
+
+Simbolos:
+? 0 o 1 repeticiones de la regla anterior.
+* Cualquier cantidad de repeticiones de la regla anterior, 0 inclusive.
++ Al menos 1 repeticion de la regla anterior.
+| Selecciona una entre regla entre todas.
+() Agrupa un conjunto de reglas en una sola.
+"" Contiene un terminal.
+; Fin de la regla.
+NUMBER Regla que representa un numero.
+STRING Regla que representa un string.
+// Un comentario.
