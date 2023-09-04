@@ -45,4 +45,11 @@ class AstPrinter : Visitor<string>{
         ret += "(" + Print(expr.InBranchExpr) + ")";
         return ret;
     }
+    //An auxiliary code for compiling
+    public string VisitFunctionExpr(FunctionExpr fun){
+        return fun.Identifier.Lexeme;
+    }
+    public string VisitCallExpr(CallExpr expr){
+        return expr.Identifier.Lexeme;
+    }
 }

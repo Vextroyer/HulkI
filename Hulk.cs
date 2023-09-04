@@ -4,6 +4,7 @@
 The backbone of the Hulk interpreter.
 */
 class Hulk{
+    private static Interpreter interpreter = new Interpreter();//Establish an interpreter for the entire session.
     public static void Main(string[] args){
         //Testing Mode
         if(args.Length > 0 && args[0] == "test")
@@ -38,7 +39,8 @@ class Hulk{
             Console.Write("> ");
             try{
                 string? source = Console.ReadLine();
-                Console.WriteLine(Run(source));
+                string? output = Run(source);
+                Console.WriteLine(output == null?"":output);
             }catch(ArgumentException){
                 //If the input is null or empty someone just hit enter. Ignore it and continue the REPL mode.
             }
@@ -69,7 +71,6 @@ class Hulk{
             // DebugParser(expr); // Comment or uncomment for debuging
 
             // Interpret the input
-            Interpreter interpreter = new Interpreter();
             return interpreter.Interpret(expr);
         }
         //If an exception is launched, means an error ocurred ,so stop the process.
@@ -80,6 +81,7 @@ class Hulk{
         catch(Exception e){
             Console.WriteLine("UNHANDLED EXCEPTION");
             Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
             return null;
         }
     }

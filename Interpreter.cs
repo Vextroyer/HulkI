@@ -10,7 +10,7 @@ class Interpreter : Visitor<object>{
     //A global excecution environment.
     private Environment environment = new Environment();
 
-    public string Interpret(Expr expr){
+    public string? Interpret(Expr expr){
         try{
             return Stringify(Evaluate(expr));
         }
@@ -21,8 +21,8 @@ class Interpreter : Visitor<object>{
         }
     }
 
-    private string Stringify(object value){
-        if(value == null)return "NULL";
+    private string? Stringify(object value){
+        if(value == null)return null;
         return value.ToString();
     }
 
@@ -176,6 +176,31 @@ class Interpreter : Visitor<object>{
     */
     public object VisitVariableExpr(VariableExpr expr){
         return environment.Get(expr.Identifier);
+    }
+    public object VisitFunctionExpr(FunctionExpr fun){
+        environment.Register(fun);
+        //Nothing to return
+        return null;
+    }
+    //Evaluates a function call
+    public object VisitCallExpr(CallExpr expr){
+        if(!environment.IsFunction(expr.Identifier))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' is not the name of a function.",expr.Identifier.Offset);
+        if(!environment.IsFunction(expr.Identifier,expr.Arity))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' has the incorrect number of parameters.",expr.Identifier.Offset);
+
+        //Uses a let-in expression as an auxiliary for computing the function value
+        
+        //First create the assignments associating the arguments with the parameters
+        List<AssignmentExpr> assignments = new List<AssignmentExpr>();
+        List<Token> arguments = environment.GetArguments(expr.Identifier.Lexeme,expr.Arity);
+        List<Expr> parameters = expr.Parameters;
+        for(int i=0;i<expr.Arity;++i){
+            assignments.Add(new AssignmentExpr(arguments[i],parameters[i]));
+        }
+
+        //Now create a let-in expression from the assigments created and the function body.
+        LetInExpr functionCall = new LetInExpr(assignments,environment.GetBody(expr.Identifier.Lexeme,expr.Arity));
+
+        return Evaluate(functionCall);
     }
     //Are this objects equal in terms of value
     private bool IsEqual(object left,object right){

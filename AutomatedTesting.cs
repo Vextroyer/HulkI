@@ -171,7 +171,10 @@ static class Tester{
         new Test("let a = 2 in let a = 3 in let a = 4 in a","4"),
         new Test("let a = 2 in a + (let a = 3 in a + (let a = 4 in a))","9"),
         new Test("let moves = \"e4xd5\" in if(moves == \"e4xd5\") \"Scandinavian defense\" else \"Cant figure it out\"","Scandinavian defense"),
-        new Test("let moves = \"e3xd5\" in if(moves == \"e4xd5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out")
+        new Test("let moves = \"e3xd5\" in if(moves == \"e4xd5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out"),
+        //Function declaration and usage.
+        new Test("function Max(a,b) => if(a >= b) a else b","NULL"),
+        new Test("Max(1,2)","2")
     };
 
     public static  void Test(){
@@ -179,6 +182,7 @@ static class Tester{
         int testNumber = 1;
         foreach(Test test in tests){
             string? result = Hulk.Run(test.source + ";");
+            if(result == null)result = "NULL";
             string expected = test.value;
             Console.Write("T "+testNumber+": ");
             if(result != expected){

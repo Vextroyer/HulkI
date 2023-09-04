@@ -19,6 +19,8 @@ receive a object of type Expr, call its Accept method, wich then will call back
 the correct method for its type, Literal, Binary , etc.
 */
 interface Visitor<R>{
+    R VisitCallExpr(CallExpr expr);
+    R VisitFunctionExpr(FunctionExpr expr);
     R VisitVariableExpr(VariableExpr expr);
     R VisitAssignmentExpr(AssignmentExpr expr);
     R VisitLetInExpr(LetInExpr expr);
@@ -139,5 +141,52 @@ class VariableExpr : Expr{
     public override R Accept<R>(Visitor<R> visitor)
     {
         return visitor.VisitVariableExpr(this);
+    }
+}
+//Represents a function declaration
+class FunctionExpr : Expr{
+    public Token Identifier{get; private set;}
+    public Expr Body {get; private set;}
+    //Arguments of the function
+    public List<Token> Args{get; private set;}
+    //Amount of arguments
+    public int Arity{
+        get{
+            return Args.Count;
+        }
+    }
+    //Wheter this function can be redefined in the same REPL session.
+    public bool Overwritable {get; private set;}
+
+    public FunctionExpr(Token identifier,List<Token> args,Expr body,bool overwritable = true){
+        Identifier = identifier;
+        Args = args;
+        Body = body;
+        Overwritable = overwritable;
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitFunctionExpr(this);
+    }
+}
+//Represents a function call
+class CallExpr : Expr{
+    public Token Identifier {get; private set;}
+    public List<Expr> Parameters{get; private set;}
+    //Amount of parameters
+    public int Arity{
+        get{
+            return Parameters.Count;
+        }
+    }
+    public CallExpr(Token identifier, List<Expr> parameters){
+        Identifier = identifier;
+        Parameters = parameters;        
+    }
+
+    public override R Accept<R>(Visitor<R> visitor)
+    {
+        return visitor.VisitCallExpr(this);
     }
 }

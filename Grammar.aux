@@ -1,5 +1,5 @@
 Gramatica definida de modo recursivo descendente.
-
+HLExpression = ("function" ID "(" Params ")"  "=>")? Expression;
 Expression = Declaration;
 Declaration = ("let" Assignment "in" Expression) | Conditional;
 Conditional = ("if" "(" Expression ")" Expression "else" Expression) | Or;
@@ -10,12 +10,14 @@ Comparison = Factor ( (">" | ">=" | "<" | "<=") Factor)?;
 Term = Factor ( ("+" | "-" | "@") Factor)*;
 Factor = Power ( ("*" | "/") Power)*;
 Power = Unary ("^" Power)*;
-Unary = ("!" | "-")* Grouping;
+Unary = ("!" | "-")* Call;
+Call = (ID + "(" + Params + ")") | Grouping;
 Grouping = ( "(" Expression ")" )? | Literal;
-Literal = NUMBER | STRING | "true" | "false" | "E" | "PI";
+Literal = NUMBER | STRING | "true" | "false" | "E" | "PI" | ID;
 
-Assignment = SingleAssignment ("," SingleAssignment)*
+Assignment = SingleAssignment ("," SingleAssignment)*;
 SingleAssignment = ID "=" Expresion;
+Params = (ID ("," ID)* )?;
 
 Simbolos:
 ? 0 o 1 repeticiones de la regla anterior.

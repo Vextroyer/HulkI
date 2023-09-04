@@ -15,7 +15,7 @@ class Parser{
     //Parse the content provided
     public Expr Parse(){
         try{
-            Expr expr = Expression();
+            Expr expr = HLExpression();
             //Expressions must end in a ;
             if(Match(TokenType.SEMICOLON)){
                 if(Match(TokenType.EOF))return expr;
@@ -42,6 +42,39 @@ class Parser{
     }
  
     //Here are the recursive descending methods for interpreting the expressions.
+
+    //Divides expressions and function declarations.
+    private Expr HLExpression(){
+        if(Match(TokenType.FUNCTION)){
+            if(!Match(TokenType.IDENTIFIER))throw new ParserException("Identifier expected after 'function' keyword.",GetOffset() + 9);
+            Token identifier = Previous();
+            if(!Match(TokenType.LEFT_PAREN))throw new ParserException("Expected () after function name.",GetOffset() + Peek().Lexeme.Length + 1);
+            List<Token> args = Arguments();
+            if(!Match(TokenType.RIGHT_PAREN)){
+                if(Match(TokenType.IDENTIFIER))throw new ParserException("')' expected but identifier found, are you missing a ','",GetOffset());
+                if(Match(TokenType.EQUAL))throw new ParserException("Assigments not allowed as function parameters, just variable names.",GetOffset());
+                throw new ParserException("Expected ')' but '" + Peek().Lexeme + "' found.",GetOffset());
+            }
+            if(!Match(TokenType.ARROW))throw new ParserException("Expected '=>' after function signature.",GetOffset());
+            Expr body = Expression();
+
+            return new FunctionExpr(identifier,args,body);
+        }
+        return Expression();
+    }
+    //Returns the arguments of the function
+    private List<Token> Arguments(){
+        List<Token> args = new List<Token>();
+        
+        //A closing paren at this point means no args.
+        if(Peek().Type == TokenType.RIGHT_PAREN)return args;
+
+        do{
+            if(!Match(TokenType.IDENTIFIER))throw new ParserException("Identifier expected.",GetOffset());
+            args.Add(Previous());//Add the identifier as an argument.
+        }while(Match(TokenType.COMMA));
+        return args;
+    }
 
     private Expr Expression(){
         //Fall to the next
@@ -227,7 +260,31 @@ class Parser{
             if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing close paren.",GetOffset());
             return expr;
         }
+        return Call();
+    }
+    //Function call
+    private Expr Call(){
+        //If the next seems like a function call, its a function call.
+        if(Peek().Type == TokenType.IDENTIFIER && PeekNext().Type == TokenType.LEFT_PAREN){
+            Token identifier = Advance();//Consume the identifier
+            Advance();//Consume the opening paren
+            List<Expr> parameters = Parameters();
+            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("')' expected but found '" + Peek().Lexeme + "' .",GetOffset());
+            return new CallExpr(identifier,parameters);
+        }
         return Literal();
+    }
+    //Return the parameters of the call. Similar to arguments.
+    private List<Expr> Parameters(){
+        List<Expr> parameters = new List<Expr>();
+        
+        //A closing paren at this point means no parameters.
+        if(Peek().Type == TokenType.RIGHT_PAREN)return parameters;
+
+        do{
+            parameters.Add(Expression());
+        }while(Match(TokenType.COMMA));
+        return parameters;
     }
     //Numbers, string literals, true, false, Euler constant and Pi constant
     private Expr Literal(){
