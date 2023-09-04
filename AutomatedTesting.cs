@@ -178,7 +178,7 @@ static class Tester{
         Console.WriteLine("Testing\n");
         int testNumber = 1;
         foreach(Test test in tests){
-            string result = Hulk.Run(test.source + ";");
+            string? result = Hulk.Run(test.source + ";");
             string expected = test.value;
             Console.Write("T "+testNumber+": ");
             if(result != expected){

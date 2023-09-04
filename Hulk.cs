@@ -20,7 +20,7 @@ class Hulk{
             
             //While is not at end
             while(!errors.EndOfStream){
-                string line = errors.ReadLine();
+                string? line = errors.ReadLine();
                 if(string.IsNullOrEmpty(line) || string.IsNullOrWhiteSpace(line))continue;
                 line.Trim();
                 if(line.StartsWith('#'))continue;//A comment
@@ -46,7 +46,7 @@ class Hulk{
     }
 
     //The last line of source code, for printing errors
-    private static string lastLine;
+    private static string lastLine = "";
 
     //Interpret and run the content of of the source.
     //Return the result of evaluate the expression or null if an error ocurred.
