@@ -3,6 +3,7 @@
 
 #Parser#
 
+FunctionDeclaration
 Expresion
 Declaration let-in
     Assignment =
@@ -15,14 +16,14 @@ Factor * /
 Power ^
 Unary ! -
 Grouping ()
+Call ()
 Literal NUMERO STRING true false E Pi
 Expresiones terminan en ;
-
-    Funciones function =>
 
 
 #Interpreter#
 
+FunctionDeclaration
 Expresion
 Declaration let-in
     Assignment =
@@ -35,6 +36,7 @@ Factor * /
 Power ^
 Unary - !
 Grouping ()
+Call ()
 Literal STRING NUMBER true false E PI
 
 Error Handling. Diferenciar los tipos de errores. Scanner, Parser, Interpreter (Lexical, Sintactico, Semantico)

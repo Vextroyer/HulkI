@@ -174,7 +174,15 @@ static class Tester{
         new Test("let moves = \"e3xd5\" in if(moves == \"e4xd5\") \"Scandinavian defense\" else \"Cant figure it out\"","Cant figure it out"),
         //Function declaration and usage.
         new Test("function Max(a,b) => if(a >= b) a else b","NULL"),
-        new Test("Max(1,2)","2")
+        new Test("Max(1,2)","2"),
+        new Test("function Fibonaci(a) => if(a <= 1) 1 else Fibonaci(a - 1) + Fibonaci(a - 2)","NULL"),
+        new Test("Fibonaci(0)","1"),
+        new Test("Fibonaci(1)","1"),
+        new Test("Fibonaci(2)","2"),
+        new Test("Fibonaci(3)","3"),
+        new Test("Fibonaci(4)","5"),
+        new Test("Fibonaci(5)","8"),
+        new Test("let n = 15, m = 21 in Max(Fibonaci(m),Fibonaci(n))","17711")
     };
 
     public static  void Test(){
