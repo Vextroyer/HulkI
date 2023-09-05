@@ -1,23 +1,3 @@
-#Esta es una guia del Lenguaje
-
-Imperativo
-Funcional
-Estatico
-Fuertemente tipado
-
-
-Expresiones de una linea - oneliners (Basado en perl one liners)
-    terminan en ;
-
-Tipos:
-    string (entre "")
-        -Puede tener caracteres escapados "a y b son \"hermanos\"". Esto incluye las comillas dobles en el string
-        -Escaped chars (\" , \n , \t)
-    number (32 bit floating point float)
-    boolean
-        true
-        false
-
 Built-in methods
     print
     sin
@@ -27,82 +7,8 @@ Built-in methods
     exp
     rand (random number between [0,1])
 
-Built-in constants
-    PI
-    E (euler constant)
-
-Operadores
-    +
-    -
-    *
-    /
-    ^(exponenciacion)
-    ()parentisis
-
-    @ Concatena 2 string o las representaciones en string de los numeros
-
-    := Este operador permite sobreescribir una variable declarada anteriormente
-
-    >
-    >=
-    <
-    <=
-    !
-    !=
-    ==
-
-    &
-    |
-    !
-
-Funciones inline (De una linea)(No pueden tener bloques de expresiones, solo una expresion de una linea)
-    function tan(x) => sin(x) / cos(x);
-    Las funciones deducen su tipo de retorno y valor de su interior
-
-    function id (args) => expresion ; (inline)
-    function id (args) { ... }
-    function id (args) { ... };
-
-Variables
-    let-in
-    let x = PI/2 in print(tan(x));
-    Las vaiables declaradas solo pueden ser utilizadas dentro del let(scoping)
-    let numero = 42, text = "Some text" in print(text @ number);
-    Es queivalente a:
-    let numero = 42 in(let text = "Some text" in print(text @ number));
-    El valor de retorno de una expresion let es el valor de retorno de su cuerpo
-
-    let in es asocia hacia la derecha, esto quiere decir que la expresion de mas a la derecha se ejecuta primero,
-    pero en este caso tiene en cuenta las variables declaradas a la izquierda
-
-Condicionales
-    if
-    else
-
-    if-else constructs
-    El valor de retorno es el valor de retorno de la rama que evaluo a verdadero
-
-    Simple if without else (are allowed?)
-
-Recursividad
-    function fib(n) => if(n > 1) fib(n-1) + fib(n-2) else 1;
-
 Interfas de Usuario
     Aplicacion interactiva de consola.
     Las funciones definidas pueden ser llamadas en expresiones siguientes
     No se pueden redeclarar funciones
     Se debe imprimir el valor devuelto por cada expresion evaluada aunque no se utilice el comando print
-
-Errores:
-    Error Lexico (Presencia de tokens invalidos en el codigo fuente)
-    Error Sintactico (Expresiones mal formadas)
-    Error Semantico (Errores de tipos o de argumentos a funciones)
-    En caso de haber mas de un error reportar solo 1 
-
-Expresion Blocks {}
-    -Todo lo que este en el interior es tratado como una simple expresion
-    (What is the return value of an expresion block)(The last value?)
-    -Las expresiones dentro del bloque deben estar separadas por ;
-    -Ambas sintaxis son correctas:
-        { ... }
-        { ... };
