@@ -184,6 +184,31 @@ class Interpreter : Visitor<object>{
     }
     //Evaluates a function call
     public object VisitCallExpr(CallExpr expr){
+        //Its a builtin function
+        if(environment.IsBuiltin(expr.Identifier.Lexeme,expr.Arity)){
+            //Retrieve the value of the parameters
+            List<object> _parameters = new List<object>();
+            foreach(Expr paramExpr in expr.Parameters)_parameters.Add(Evaluate(paramExpr));
+            switch(expr.Identifier.Lexeme){
+                case "rand":
+                    Random random = new Random();
+                    return random.NextSingle();
+                case "cos":
+                    return (float) Math.Cos((float)_parameters[0]);
+                case "exp":
+                    return (float) Math.Exp((float)_parameters[0]);
+                case "print":
+                    return _parameters[0];
+                case "sin":
+                    return (float) Math.Sin((float)_parameters[0]);
+                case "sqrt":
+                    return (float) Math.Sqrt((float)_parameters[0]);
+                case "log":
+                    return (float) Math.Log((float)_parameters[1],(float)_parameters[0]);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
         //Its not a function.
         if(!environment.IsFunction(expr.Identifier))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' is not a function.",expr.Identifier.Offset);
         //The function has the incorrect number of parameters.

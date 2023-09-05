@@ -57,6 +57,9 @@ class Environment{
         string name = fun.Identifier.Lexeme;
         int arity = fun.Arity;
         
+        //Builtin functions can not be redefined.
+        if(IsBuiltin(name,arity))throw new InterpreterException($"'{name}' is a built-in function and cannot be redefined.",fun.Identifier.Offset);
+
         //Randomize the names of the arguments so it becomes unlikely that they collide with a function name, existing or yet to be declared.
         fun.RandomizeArgs();
 
@@ -105,4 +108,17 @@ class Environment{
     public List<int> GetAritys(string funName){
         return funcTable[funName].Keys.ToList();
     }
+    //Returns true if the given identifier corresponds to a builtin function
+    public bool IsBuiltin(string name,int arity){
+        return builtIns.Contains((name,arity));
+    }
+    private HashSet<(string,int)> builtIns = new HashSet<(string, int)>(){
+        ("rand",0),
+        ("cos",1),
+        ("exp",1),
+        ("print",1),
+        ("sin",1),
+        ("sqrt",1),
+        ("log",2)
+    };
 }
