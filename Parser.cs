@@ -46,16 +46,16 @@ class Parser{
     //Divides expressions and function declarations.
     private Expr HLExpression(){
         if(Match(TokenType.FUNCTION)){
-            if(!Match(TokenType.IDENTIFIER))throw new ParserException("Identifier expected after 'function' keyword.",GetOffset() + 9);
+            if(!Match(TokenType.IDENTIFIER))throw new ParserException("Identifier expected but found '" + Peek().Lexeme + "'.",GetOffset());
             Token identifier = Previous();
-            if(!Match(TokenType.LEFT_PAREN))throw new ParserException("Expected () after function name.",GetOffset() + Peek().Lexeme.Length + 1);
+            if(!Match(TokenType.LEFT_PAREN))throw new ParserException("Expected () after function name.",identifier.Offset + identifier.Lexeme.Length);
             List<Token> args = Arguments();
             if(!Match(TokenType.RIGHT_PAREN)){
-                if(Match(TokenType.IDENTIFIER))throw new ParserException("')' expected but identifier found, are you missing a ','",GetOffset());
-                if(Match(TokenType.EQUAL))throw new ParserException("Assigments not allowed as function parameters, just variable names.",GetOffset());
+                if(Peek().Type == TokenType.IDENTIFIER)throw new ParserException("')' expected but identifier found, are you missing a ','",GetOffset());
+                if(Peek().Type == TokenType.EQUAL)throw new ParserException("Assigments not allowed as function parameters, just variable names.",GetOffset());
                 throw new ParserException("Expected ')' but '" + Peek().Lexeme + "' found.",GetOffset());
             }
-            if(!Match(TokenType.ARROW))throw new ParserException("Expected '=>' after function signature.",GetOffset());
+            if(!Match(TokenType.ARROW))throw new ParserException("Expected '=>' after function signature.",Previous().Offset + 1);
             Expr body = Expression();
 
             return new FunctionExpr(identifier,args,body);
@@ -77,6 +77,8 @@ class Parser{
     }
 
     private Expr Expression(){
+        //If a function keyword is found here, its because its inside some other expression, wich its not allowed.
+        if(Peek().Type == TokenType.FUNCTION)throw new ParserException("Function declaration not allowed as part of other expressions.",GetOffset());
         //Fall to the next
         return Declaration();
     }

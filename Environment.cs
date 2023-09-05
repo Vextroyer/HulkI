@@ -91,4 +91,8 @@ class Environment{
     public Expr GetBody(string name,int arity){
         return funcTable[name][arity].Body;
     }
+    //Returns a list of possible aritys for the function.
+    public List<int> GetAritys(string funName){
+        return funcTable[funName].Keys.ToList();
+    }
 }

@@ -41,9 +41,10 @@ True;
 False;
 let E = 12 in E;
 let PI = 12 in PI;
+let a = 5 in (function insider(takeNoArgs) => "Farewell") + 2;
 
 #Fix this so it will not be treated like an error.
-;
+#;
 
 
 #SEMANTIC
@@ -57,4 +58,28 @@ let a = b, b = 2 in a;
 2 + (let var1 = 5 , var2 = 7 in (var * var ) ^ 2 );
 let a = "number" , a = a + 2 in a;
 
-#No variable can be name as a function.
+#No variable can be name as a function. Interpreter method for the parser.
+# this could be done in the parser.
+
+function test(onearg) => "Iam a return value";
+let a = 5 , test = 10 in test / a;
+test(2,3);
+function test(onearg,twoarg) => "Iam a return value";
+test();
+function test(onearg,twoarg,threearg) => "Iam a return value";
+test(23,12,24,12);
+function test() => "Iam a return value";
+test(23,12,24,12);
+let a = 5 in pitch(a);
+
+
+let a = 5 in a + test();
+
+function function(one,three,two) => "Iam a bad function";
+function good => "It would be great to sugarize this to take no args";
+function good (iamanargdude => PI * E / "Tu y Yo";
+function good iamtheargcousin) => let A = 2 in "How much in AbrAcAdAbrA";
+function good (argone,arguno arduino) 2 + 2 == 4 | "Iam junk";
+function bad (intElligence = PI) => "Iam sorounded";
+function aBow(withoutArrow) "Is not a proper function";
+function aBodyLess(soul) => ;

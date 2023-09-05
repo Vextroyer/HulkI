@@ -184,8 +184,22 @@ class Interpreter : Visitor<object>{
     }
     //Evaluates a function call
     public object VisitCallExpr(CallExpr expr){
-        if(!environment.IsFunction(expr.Identifier))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' is not the name of a function.",expr.Identifier.Offset);
-        if(!environment.IsFunction(expr.Identifier,expr.Arity))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' has the incorrect number of parameters.",expr.Identifier.Offset);
+        //Its not a function.
+        if(!environment.IsFunction(expr.Identifier))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' is not a function.",expr.Identifier.Offset);
+        //The function has the incorrect number of parameters.
+        if(!environment.IsFunction(expr.Identifier,expr.Arity)){
+            string message = "'" + expr.Identifier.Lexeme + "' has the incorrect number of parameters. Expected : ";
+            List<int> aritys = environment.GetAritys(expr.Identifier.Lexeme);
+            aritys.Sort();
+            for(int i=0;i<aritys.Count;++i){
+                message += aritys[i].ToString();
+                if(i == aritys.Count - 1)continue;
+                if(i == aritys.Count - 2)message += " or ";
+                else message += ", ";
+            }
+            message += " parameters.";
+            throw new InterpreterException(message,expr.Identifier.Offset);
+        }
 
         //Uses a let-in expression as an auxiliary for computing the function value
         
