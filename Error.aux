@@ -58,11 +58,9 @@ let a = b, b = 2 in a;
 2 + (let var1 = 5 , var2 = 7 in (var * var ) ^ 2 );
 let a = "number" , a = a + 2 in a;
 
-#No variable can be name as a function. Interpreter method for the parser.
-# this could be done in the parser.
-
 function test(onearg) => "Iam a return value";
 let a = 5 , test = 10 in test / a;
+let a = 5 in test / a;
 test(2,3);
 function test(onearg,twoarg) => "Iam a return value";
 test();
@@ -71,7 +69,6 @@ test(23,12,24,12);
 function test() => "Iam a return value";
 test(23,12,24,12);
 let a = 5 in pitch(a);
-
 
 let a = 5 in a + test();
 

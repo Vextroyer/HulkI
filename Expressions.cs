@@ -169,6 +169,15 @@ class FunctionExpr : Expr{
     {
         return visitor.VisitFunctionExpr(this);
     }
+    //A method for randomizing the name of the arguments.
+    public void RandomizeArgs(){
+        for(int i = 0;i<Args.Count;++i){
+            Token actual = Args[i];
+            Token randomized = new Token(actual.Type,actual.Lexeme + actual.GetHashCode(),actual.Literal,actual.Offset);
+            Body = new Replacer().Replace(Body,actual,randomized);//Also replace the body
+            Args[i] = randomized;
+        }
+    }
 }
 //Represents a function call
 class CallExpr : Expr{

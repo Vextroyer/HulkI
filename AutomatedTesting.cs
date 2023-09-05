@@ -182,7 +182,12 @@ static class Tester{
         new Test("Fibonaci(3)","3"),
         new Test("Fibonaci(4)","5"),
         new Test("Fibonaci(5)","8"),
-        new Test("let n = 15, m = 21 in Max(Fibonaci(m),Fibonaci(n))","17711")
+        new Test("let n = 15, m = 21 in Max(Fibonaci(m),Fibonaci(n))","17711"),
+        //A function with a parameter named like another function yet to be declared.
+        new Test("function thisIsFun(sum) => \"ja ja ja\"","NULL"),
+        new Test("thisIsFun(2)","ja ja ja"),
+        new Test("function sum(a,b) => a + b","NULL"),
+        new Test("thisIsFun(2)","ja ja ja")
     };
 
     public static  void Test(){

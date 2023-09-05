@@ -30,6 +30,7 @@ class Environment{
     //Retrieves the value associated with the given identifier.
     public object Get(Token identifier){
         try{
+            if(IsFunction(identifier))throw new InterpreterException("Mising '(' after call to function '"+identifier.Lexeme+"'.",identifier.Offset + identifier.Lexeme.Length);
             return table[identifier.Lexeme].Last();
         }catch(KeyNotFoundException){
             throw new InterpreterException("Variable '" + identifier.Lexeme + "' is used but not declared.",identifier.Offset);
@@ -37,6 +38,11 @@ class Environment{
     }
     //Associates an identifier with a value.
     public void Set(Token identifier,object value){
+        
+        //No variable can be named as a declared function, except as an argument to a function. Its explained in the register method the reason of this exception.
+        //This could be done in the parser but the interpreter has the suitable methods for doing it.
+        if(IsFunction(identifier))throw new InterpreterException("A function name can not be used as the name of a variable.",identifier.Offset);
+
         if(!table.ContainsKey(identifier.Lexeme))table.Add(identifier.Lexeme,new List<object>());
         table[identifier.Lexeme].Add(value);
     }
@@ -50,6 +56,10 @@ class Environment{
     public void Register(FunctionExpr fun){
         string name = fun.Identifier.Lexeme;
         int arity = fun.Arity;
+        
+        //Randomize the names of the arguments so it becomes unlikely that they collide with a function name, existing or yet to be declared.
+        fun.RandomizeArgs();
+
         if(funcTable.ContainsKey(name)){
             //There is a function with this name
             Dictionary<int,FunctionExpr> arityTable = funcTable[name];
