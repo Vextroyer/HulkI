@@ -68,10 +68,12 @@ class Environment{
             Dictionary<int,FunctionExpr> arityTable = funcTable[name];
             if(arityTable.ContainsKey(arity)){
                 //There is a function with this arity
-                if(!IsOverwritable(arityTable[arity]))throw new InterpreterException("Function '" + fun.Identifier.Lexeme + "' can not be redefined.");
-                else {
-                    funcTable[name][arity] = fun;
-                }
+                throw new InterpreterException($"Cant redeclare function '{name}'. Function redeclaration is not allowed.",fun.Identifier.Offset);
+                //Uncomment this block to support function redeclaration.
+                // if(!IsOverwritable(arityTable[arity]))throw new InterpreterException("Function '" + fun.Identifier.Lexeme + "' can not be redefined.");
+                // else {
+                //     funcTable[name][arity] = fun;
+                // }
             }else{
                 funcTable[name].Add(arity,fun);
             }
