@@ -1,0 +1,11 @@
+Capture stack overflow errors produced by recursive function calls.
+
+Corrcetly print errors produced in function declarations wich can only be
+captured after the functions are called.
+
+Modify print so it prints its content besides returning it, for debugging purposes.
+
+Check the types of the arguments passed to primitive functions like sin or cos 
+and report errors of type.
+
+Remove overwritable support for functions.

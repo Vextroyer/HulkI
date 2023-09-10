@@ -1,0 +1,106 @@
+AstPrinter:
+This class is for printing the expressions produced by the parser, so the parser
+output can be debuged. It was more useful in early stages of development.
+Its entry point is the Print method wich receives an expression. From there the
+corresponding Visit method is indirectly called.
+Each of the Visit methods handle the printing of specifc types of expressions.
+
+AutomatedTesting:
+This class is for testing the interpreter. After the Interpreter class was up and
+running this become the main debugging method for the interpreter.
+
+The structure Test represents a test on a straigthforward way, a Test is a source code
+to be excecuted and a expected value from the interpreter.
+
+So the testing process resumed is : excecute source, collect result, compare result
+and expected value, report.
+
+The member tests is a Test[] wich contains all the tests. Tests are added programatically
+to the source code. Its designed this way because at the moment it was simple and easy to
+implement it this way. Its also possible to put tests on a file, and make a third aplication
+that handles the logic of testing. This way is encouraged so testing code is separated from
+other code.
+
+The Test method just wire up all the parts involved on testing. It loads the tests, feeds them
+to the interpreter one at time, collects the result from the interpreter, compare if the result
+is as expected and report accordingly.
+It handles the special case of function declarations where the result from the interpreter is the empty string.
+
+A word on automated testing: its of great importance to do automated tesing. After every change a run of testing
+was performed and this aided to address bugs instantly avoiding them to pile up with the nasty consequences that
+comes.
+
+Environment:
+This class represents the state of the interpreter.
+There is just one big global mutable environmet.
+Here lives functions and variables. 
+Functions binds identifiers ,or handles, and expressions making expressions reusable.
+Variables binds identifiers to data, making data reusable.
+
+Variables are stored on a dictionary. To each variable there is associated a list of objects that behaves like a stack.
+This way only the last object can be accesed making possible variable scope.
+
+The Get method enforce this behaviour. First if the identifier is from a function it report an error because functions cant be used
+as variables. If not it returns the last object of the list associated to the identifier, the top of the stack. If this identifier
+represents no variable its just an error to access it.
+
+The Set method is where actually variables are binded to values. If the identifier correspond to a function its an error to assign it
+a value. This way a identifier can only be a variable or a function but no both. Then a new dictionary entry is created for this
+identifier if its new. And lastly the value is added to the end of the list of values the identifier represents, the top of the stack.
+
+The Remove method removes the last value of the list associated to the given identifier, pops the stack. If the list becomes empty
+after that, the identifier gets removed from the dictionary, it gets out of scope.
+
+The above three methods receive the token that represents the identifier because the token holds information important to error reporting.
+
+
+Functions are stored on a dictionary.
+The dictionary structure is peculiar, as a function is uniquely represented by its name, its arity,
+and the type of its arguments. The last one is not used in the current implementation.
+
+The function representation is as follows:
+    A function is uniquely determined by its name and arity.
+    Name comes first.
+    Arity comes next.
+    This is an example of the structure used for storing functions.
+    Name                Arity               An example body
+    
+    Sum --------------- 2 ----------------- a + b
+        \-------------- 3 ----------------- a + b + c
+    
+    Max --------------- 2 ----------------- if(a >= b) a else b
+        \-------------- 3 ----------------- let m = Max(a,b) in if(m >= c) m else c
+    
+    This structure can be extended to support types because types comes after arity in the hieracy.
+
+The Register function associates an identifier to a function. It handles function declarations.
+It forbids redeclaration of builtin functions.
+Note that you can declare a function : 
+    function cos(alfa,beta) => "some body";
+because the arity does not match the builtin cos(x) for cosine calculation.
+
+After this the arguments are randomized, salted specifically because a number is added to the end.
+Consider the following snippet:
+    function fun(sum) => "do something";
+    fun(2); //prints "do something"
+    function sum(x,y) => x + y;
+    fun(2); //It should print "do something" despite its argument is as the name of a function.
+By salting the arguments you can : have the arguments be named like functions, which of not
+being possible would be conflictive since we cant tell wich names would be used to declare functions
+in the future, so we avoid future problems.
+
+The way its done its explained in the Replacer class.
+
+Next is declaring the function if it doesnt exist, or reporting an error if it exist because
+redeclaration is not allowed.
+A function exist if its name and arity match an existing function name's and arity's.
+
+The IsFunction method works over the function dictionary structure.
+
+The methods GetBody and GetArguments allow access to those specific elements
+for the provided function.
+The method GetAritys provides all the diferent arities of the provided function name.
+
+The method IsBuiltin determines if a given function is a builtin function.
+
+The member builtIns declare the name and aritys of the builtin functions.
