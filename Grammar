@@ -1,4 +1,5 @@
 Gramatica definida de modo recursivo descendente.
+
 HLExpression = ("function" ID "(" Params ")"  "=>")? Expression;
 Expression = Declaration;
 Declaration = ("let" Assignment "in" Expression) | Conditional;
@@ -23,7 +24,7 @@ Simbolos:
 ? 0 o 1 repeticiones de la regla anterior.
 * Cualquier cantidad de repeticiones de la regla anterior, 0 inclusive.
 + Al menos 1 repeticion de la regla anterior.
-| Selecciona una entre regla entre todas.
+| Selecciona una regla entre todas.
 () Agrupa un conjunto de reglas en una sola.
 "" Contiene un terminal.
 ; Fin de la regla.
