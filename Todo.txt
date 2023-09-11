@@ -1,7 +1,7 @@
 Capture stack overflow errors produced by recursive function calls.
 
 Corrcetly print errors produced in function declarations wich can only be
-captured after the functions are called.
+captured after the functions are called. Means print the error that happens in the body of the function.
 
 Modify print so it prints its content besides returning it, for debugging purposes.
 
@@ -9,3 +9,14 @@ Check the types of the arguments passed to primitive functions like sin or cos
 and report errors of type.
 
 Remove overwritable support for functions.
+
+Division por 0.
+
+
+If it only receives whitespaces do nothing.
+
+Write documentation on latex.
+
+
+Add test.
+let a = 3 in a + let b = 4 in b + 8;
