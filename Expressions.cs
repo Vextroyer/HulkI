@@ -9,7 +9,7 @@ namespace Hulk;
 Base class for expressions
 */
 abstract class Expr{
-    public abstract R Accept<R> (Visitor<R> visitor);//
+    public abstract R Accept<R> (Visitor<R> visitor);//Visitor design pattern.
 }
 /*
 Classes that handle expressions should implement this interface.
@@ -30,7 +30,7 @@ interface Visitor<R>{
     R VisitUnaryExpr(UnaryExpr expr);
 }
 
-//Represents string and number literals
+//Represents string and number literals and also boolean values true and false.
 class LiteralExpr : Expr{
     public object Value {get; private set;}
 
