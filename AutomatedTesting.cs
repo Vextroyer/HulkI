@@ -192,7 +192,9 @@ static class Tester{
         new Test("true | false | true","True"),
         new Test("let x = 12 in x == 9 | x == 10 | x == 11 | x == 12","True"),
         new Test("true & false & true","False"),
-        new Test("let x = 12 in x == 9 & x == 10 & x == 11 & x == 12","False")
+        new Test("let x = 12 in x == 9 & x == 10 & x == 11 & x == 12","False"),
+        new Test("let a = 2 , b = 4 , c = \"pedrito\" in (a == b) != c","True"),
+        new Test("let a = 2 , b = 4 , c = \"pedrito\" in a == (b != c)","False")
     };
 
     public static  void Test(){

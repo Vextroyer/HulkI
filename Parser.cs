@@ -192,10 +192,19 @@ class Parser{
     //Equality operators '==' '!='
     private Expr Equality(){
         Expr expr = Comparison();
-        if(Match(TokenType.EQUAL_EQUAL,TokenType.BANG_EQUAL)){
+
+        int counter = 0;//How many equalities are being used.
+        
+        //Multiple chained equalities are not supported by the grammar. So report an error if more than one is found.
+        while(Match(TokenType.EQUAL_EQUAL,TokenType.BANG_EQUAL)){
+            
+            if(counter == 1)throw new ParserException($"Cannot use '{Previous().Lexeme}' after '{Previous().Lexeme}'. Consider using parenthesis and/or logical operators.",Previous().Offset);
+            
             Token operation = Previous();
             Expr right = Comparison();
-            return new BinaryExpr(expr,operation,right);
+            expr = new BinaryExpr(expr,operation,right);
+            
+            ++counter;
         }
         return expr;
     }
@@ -203,10 +212,19 @@ class Parser{
     //Comparison operators '<' '<=' '>' '>='
     private Expr Comparison(){
         Expr expr = Term();
-        if(Match(TokenType.LESS,TokenType.LESS_EQUAL,TokenType.GREATER,TokenType.GREATER_EQUAL)){
+
+        int counter = 0;//How many comparisons are being used.
+
+        //Multiple chained comparisons are not supported by the grammar. So report an error if more than one is found.
+        while(Match(TokenType.LESS,TokenType.LESS_EQUAL,TokenType.GREATER,TokenType.GREATER_EQUAL)){
+            
+            if(counter == 1)throw new ParserException($"Cannot use '{Previous().Lexeme}' after '{Previous().Lexeme}'. Consider using parenthesis and/or logical operators.",Previous().Offset);
+
             Token operation = Previous();
             Expr right = Term();
-            return new BinaryExpr(expr,operation,right);
+            expr = new BinaryExpr(expr,operation,right);
+
+            ++counter;
         }
         return expr;
     }

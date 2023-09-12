@@ -47,6 +47,13 @@ let E = 12 in E;
 let PI = 12 in PI;
 let a = 5 in (function insider(takeNoArgs) => "Farewell") + 2;
 
+let a = 2 , b = 4 , c = "pedrito" in a == b == c;
+let a = 2 , b = 4 , c = "pedrito" in a == b != c;
+let a = 2 , b = 4 , c = "pedrito" in a != b == c;
+let a = 2 , b = 4 , c = "pedrito" in a != b != c;
+let a = 2 , b = 4 , c = "pedrito" in a < b < c;
+let a = 2 , b = 4 , c = "pedrito" in a <= b >= c;
+
 #Fix this so it will not be treated like an error.
 #;
 
