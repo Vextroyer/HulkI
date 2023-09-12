@@ -28,7 +28,7 @@ class Parser{
                 //If exist a ';' then there are tokens before the ';' that where not parsed.
 
                 //If the current token is a closing paren then the opening paren is missing.
-                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing opening paren.",GetOffset() - 1);
+                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("There is no '(' for this parenthesis.",GetOffset() - 1);
                 if(Match(TokenType.EQUAL))throw new ParserException("Assignments can only be used on a 'let in' expression.",Previous().Offset);
                 throw new ParserException("Malformed expresion.",GetOffset());
             }
@@ -91,8 +91,9 @@ class Parser{
             
             //'In' part
             if(!Match(TokenType.IN)){
-                if(Peek().Type == TokenType.IDENTIFIER)throw new ParserException("Identifier found. Are you missing a ',' ?",GetOffset());
-                throw new ParserException("'in' keyword expected before expression.",GetOffset());
+                throw new ParserException($"Expected 'in' but '{Peek().Lexeme}' was found. Missing a ',' ? Had an error typing 'in' ?",GetOffset());
+                // if(Peek().Type == TokenType.IDENTIFIER)throw new ParserException("Identifier found. Are you missing a ',' ?",GetOffset());
+                // throw new ParserException("'in' keyword expected before expression.",GetOffset());
             }
 
             Expr inBranchExpr = Expression();
@@ -114,7 +115,7 @@ class Parser{
                 throw new ParserException("Assignment expected" + (round == 0 ? "." : " after ',' ."),Previous().Offset);
             }
             Token identifier = Previous();
-            if(!Match(TokenType.EQUAL))throw new ParserException("Equal sign '=' expected after '" + Previous().Lexeme + "'." ,Previous().Offset);
+            if(!Match(TokenType.EQUAL))throw new ParserException("Equal sign '=' expected after '" + Previous().Lexeme + "'." ,Previous().Offset + Previous().Lexeme.Length);
             Expr rvalue = Expression();
             assignments.Add(new AssignmentExpr(identifier,rvalue));
         }while(Match(TokenType.COMMA));
@@ -133,7 +134,7 @@ class Parser{
             if(Peek().Type == TokenType.LEFT_PAREN){
                 //If there is a closing paren right after the opening paren thats an error because there is no expression
                 //to be evaluated.
-                if(PeekNext().Type == TokenType.RIGHT_PAREN)throw new ParserException("Empty parens not allowed after if. They must contain an expression.",GetOffset());
+                if(PeekNext().Type == TokenType.RIGHT_PAREN)throw new ParserException("Empty parenthesis not allowed after if. They must contain an expression.",GetOffset());
                 
                 //It is necesary to check if exist a paren before calling Grouping because
                 //it also handles expressinons without parens and this could lead to confusing errors.
@@ -154,14 +155,14 @@ class Parser{
                 try{
                     elseBranchExpr = Expression();
                 }catch(ParserException){
-                    throw new ParserException("No expression found on the 'else' branch.",elseOffset);
+                    throw new ParserException("No expression found on the 'else' branch.",elseOffset + 4);
                 }
                 
 
                 return new ConditionalExpr(condition,ifBranchExpr,elseBranchExpr,ifOffset,elseOffset);
             }else{
                 //No paren after an if is a syntactic error
-                throw new ParserException("Expected '()' after if.",Previous().Offset + 1);
+                throw new ParserException("Expected '(' after if.",Previous().Offset + 2);
             }
         }
         //Fall to next
@@ -240,7 +241,7 @@ class Parser{
         return expr;
     }
 
-    //Divisions and multiplications '/' '*'
+    //Divisions ,multiplications and modules '/' '*' '%'
     private Expr Factor(){
         Expr expr = Power();
         while(Match(TokenType.SLASH,TokenType.PERCENT,TokenType.STAR)){
@@ -263,6 +264,12 @@ class Parser{
     }
     //Unary operators '!' '-'
     private Expr Unary(){
+        if(Match(TokenType.BANG,TokenType.MINUS)){
+            Token operation = Previous();
+            return new UnaryExpr(operation,Unary());
+        }
+        return Grouping();
+        /*
         switch(Peek().Type){
             case TokenType.MINUS:
             case TokenType.BANG:
@@ -271,13 +278,14 @@ class Parser{
             default:
                 return Grouping();
         }
+        */
     }
 
     //Evaluate parenthesis
     private Expr Grouping(){
         if(Match(TokenType.LEFT_PAREN)){
             Expr expr = Expression();
-            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("Missing close paren.",GetOffset());
+            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException($"Expected ')' but '{Peek().Lexeme}' was found.",GetOffset());
             return expr;
         }
         return Call();

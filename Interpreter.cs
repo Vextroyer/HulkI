@@ -222,7 +222,7 @@ class Interpreter : Visitor<object>{
                 if(i == aritys.Count - 2)message += " or ";
                 else message += ", ";
             }
-            message += " parameters.";
+            message += $" parameters, but {expr.Arity} were passed.";
             throw new InterpreterException(message,expr.Identifier.Offset);
         }
 
