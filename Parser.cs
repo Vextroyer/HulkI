@@ -269,16 +269,6 @@ class Parser{
             return new UnaryExpr(operation,Unary());
         }
         return Grouping();
-        /*
-        switch(Peek().Type){
-            case TokenType.MINUS:
-            case TokenType.BANG:
-                Token operation = Advance();
-                return new UnaryExpr(operation,Unary());
-            default:
-                return Grouping();
-        }
-        */
     }
 
     //Evaluate parenthesis
