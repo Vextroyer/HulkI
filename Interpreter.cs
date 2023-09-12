@@ -150,20 +150,39 @@ class Interpreter : Visitor<object>{
     Evaluates a let-in expression.
     */
     public object VisitLetInExpr(LetInExpr expr){
-        //Compute the assigments.
-        foreach(AssignmentExpr asignment in expr.Assignments){
-            environment.Set(asignment.Identifier,Evaluate(asignment.RValue));
+        //This code is prune to the following error:
+        //Some assignments are computed, an error ocurred and the excecution was halted, the computed assignments
+        //were never unassigned, so there are variables on the environment that should not be there.
+        //It must be guaranteed that the environment state if something fails returns to its previous state,
+        //and do not hang on a intermediate state.
+
+        List<Token> guarantee = new List<Token>();
+
+        try{
+            //Compute the assigments.
+            foreach(AssignmentExpr asignment in expr.Assignments){
+                environment.Set(asignment.Identifier,Evaluate(asignment.RValue));
+                //If the above fails, the token was not binded thus it doesnt need to be removed.
+                //If the above doesnt fails the token was binded and thus it needs to be removed.
+                guarantee.Add(asignment.Identifier);
+            }
+
+            //Evaluate the expression.
+            object value = Evaluate(expr.InBranchExpr);
+
+            //Uncompute the assignments.
+            foreach(AssignmentExpr asignment in expr.Assignments){
+                environment.Remove(asignment.Identifier);
+            }
+
+            return value;
+        }catch(Exception e){
+            //Return the environment to its previous state.
+            //by uncomputing the computed assignments.
+            foreach(Token identifier in guarantee)environment.Remove(identifier);
+            //Rethrow
+            throw e;
         }
-
-        //Evaluate the expression.
-        object value = Evaluate(expr.InBranchExpr);
-
-        //Uncompute the assignments.
-        foreach(AssignmentExpr asignment in expr.Assignments){
-            environment.Remove(asignment.Identifier);
-        }
-
-        return value;
     }
     /*
     Evaluates an assigment.
