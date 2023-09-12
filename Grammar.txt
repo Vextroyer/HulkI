@@ -16,6 +16,9 @@ Call = (ID + "(" + Params + ")") | Grouping;
 Grouping = ("(" Expression ")") | Literal;
 Literal = NUMBER | STRING | "true" | "false" | "E" | "PI" | ID;
 
+// A note on the above rules: 
+// Upper rules have less precedence that bottom rules. For example Unary has higher precedence than Comparison.
+
 Assignment = SingleAssignment ("," SingleAssignment)*;//A comma separated list of assignments.
 SingleAssignment = ID "=" Expresion;//A single assigment.
 Params = (ID ("," ID)* )?;//Parameters or arguments for a function call or declaration.
