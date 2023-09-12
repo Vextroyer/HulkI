@@ -174,7 +174,7 @@ class Parser{
         while(Match(TokenType.PIPE)){
             Token operation = Previous();
             Expr right = And();
-            return new BinaryExpr(expr,operation,right);
+            expr = new BinaryExpr(expr,operation,right);
         }
         return expr;
     }
@@ -184,7 +184,7 @@ class Parser{
         while(Match(TokenType.AMPERSAND)){
             Token operation = Previous();
             Expr right = Equality();
-            return new BinaryExpr(expr,operation,right);
+            expr = new BinaryExpr(expr,operation,right);
         }
         return expr;
     }

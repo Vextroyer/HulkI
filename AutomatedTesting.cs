@@ -187,7 +187,12 @@ static class Tester{
         new Test("function thisIsFun(sum) => \"ja ja ja\"","NULL"),
         new Test("thisIsFun(2)","ja ja ja"),
         new Test("function sum(a,b) => a + b","NULL"),
-        new Test("thisIsFun(2)","ja ja ja")
+        new Test("thisIsFun(2)","ja ja ja"),
+        //Other tests
+        new Test("true | false | true","True"),
+        new Test("let x = 12 in x == 9 | x == 10 | x == 11 | x == 12","True"),
+        new Test("true & false & true","False"),
+        new Test("let x = 12 in x == 9 & x == 10 & x == 11 & x == 12","False")
     };
 
     public static  void Test(){
