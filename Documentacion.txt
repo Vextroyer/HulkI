@@ -104,3 +104,441 @@ The method GetAritys provides all the diferent arities of the provided function 
 The method IsBuiltin determines if a given function is a builtin function.
 
 The member builtIns declare the name and aritys of the builtin functions.
+
+Error.cs file:
+
+Class HulkException:
+This class is the base class for all Hulk defined exceptions.
+It stablish an Offset propertie, which is the position in the source code where the error
+was found. Its an aproximation for error printing purposes.
+It also stablish an ErrorType method which returns one of the following three strings:
+Lexical, Syntactic, Semantic.
+This are the three kinds of errors that can occur during the excecution of a Hulk program.
+Lexical errors happens during the scanning phase. In the Scanner class.
+Syntactic errors happens during the parsing phase. In the Parser class.
+Semantic errors happens during the excecution phase. In the Interpreter class.
+The HandleException method provides uniformity for handling errors in the Scanner,
+Parser and Interpreter class. (Show pictures) All the derived classes from HulkException
+implement the HandleException method like this:
+
+public override void HandleException(){
+    Hulk.Error(this);//This line for reporting the error.
+    throw this;//This line to abort the excecution of the code after the error is reported.
+}
+
+ScannerException, ParserException, InterpreterException :
+This classes represents Lexical,Syntactic,Semantic errors respectively and as their names sugest 
+they are encountered at the Scanner,Parser,Interpreter class respectively and during the
+scanning, parsing, interpreting phase.
+
+Expressions.cs file:
+This file holds the different classes that represent expressions.
+
+Expr:
+This class is the base class for all the other expression classes.
+The generic method Accept its intended to apply the visitor design pattern.
+All derived classes from Expr implements the Accept method like this:
+public override R Accept<R>(Visitor<R> visitor){
+    return visitor.Visit$CLASS_NAME$(this);
+}
+
+Visitor<R>:
+This interface is designed to work in conjunction with the Accept method from
+the Expr class.
+First of all a Visitor should be a class that handle expressions of multiple types and behaves
+differently according to the type of expression it currently handles. Example of visitors are:
+The AstPrinter : because printing depends on the type of expression beign printed, and a BinaryExpr
+is printed differently from a LetInExpr.
+The Interpreter : because different expressions are interpreted differently.
+The Replacer : because replacement is done differently according to the type of expression, a LiteralExpr
+requires no replacement at all while a VariableExpr its the main target for a replacement.
+By adding a new Visit method you can support a new type of expression, this way all the current visitors must offer
+support for this kind of expression to.
+The Interpreter, AstPrinter and Replacer are visitors and implement all the visit methods but they do it differently
+and they encapsulate their implementations, so all the code for interpreting expressions is contained in the Interpreter
+class.
+A visitor can receive an Expr and call its Accept method which will call back the proper visit method on the
+visitor. 
+
+LiteralExpr:
+This class represents number literals, string literals, true and false.
+
+UnaryExpr:
+This class represents unary operations like:
+! Logical negation
+- Sign negation for numbers.
+
+BinaryExpr:
+This class represents binary operators like:
++ Sum
+- Substraction
+* Multiplication
+% Modulus
+/ Division
+^ Exponentiation
+@ String concatenation
+Comparison operators:
+< 
+<=
+>
+>=
+==
+!=
+Logical operators:
+&   Logical and
+|   Logical or
+
+ConditionalExpr:
+This class represents if-else expresions.
+It has fields for the condition expression, the if branch expression (excecuted if condition is true)
+and the else branch expresion (excecuted if the condition is false).
+It also has two additional properties for error printing purposes:
+IfOffset and ElseOffset.
+
+LetInExpr:
+This class represents a let-in expression.
+It has fields for the assignments and the in branch expression (expression after the 'in').
+The assignments are stored as a list of AssignmentExpr.
+
+AssignmentExpr:
+This class represents an assigment.
+It has fields for the identifier and the rvalue expression.
+
+VariableExpr:
+This class represents variables.
+
+FunctionExpr:
+This class represents function declarations, signatures.
+It has fields for the functions name, body and arguments, and provides a propertie
+to determine the arity of the function.
+It also has a RandomizeArgs method that work in conjunction with the Register method from
+Environment. To each argument it appends a salt and in the body of the function every aparition
+of the old argument its replaced by the new salted version. This replacement is done by the
+Replacer class.
+
+CallExpr:
+This class represents a function call.
+It has fields for the name of the function beign called and the parameters passed.
+It also has a propertie to retrieve the arity of the call.
+
+
+Hulk:
+This class contains the main method.
+It has an Interpreter instance as member which will be used through the session.
+
+On the Main method it offers support for testing mode and to error mode which are
+for testing purposes.
+
+If no mode are specified via arguments to the program it enters REPL mode.
+On REPL mode it receives code one line at a time an inmediatly interprets it returning
+the value the expression evaluates to.
+
+It maintains the last line of code in the lastLine member for error printing purposes.
+The Run methods receive the source code, a line, if the line is empty or only contains whitespaces do nothing.
+It sets lastLine.
+Use a Scanner to scan the source code and return a list of tokens.
+Use a Parser to parse the list of tokens and obtain a Abstract Syntax Tree, on a Expr object.
+Then interpret the AST and return the result of the evaluation as a string object to be printed on console.
+
+Exceptions can arise during this proces. Some are expected, those derived from HulkException, others are not.
+Both are catched, keeping the REPL session alive.
+
+The Error method handles general error printing on the CLI. It prints the error type with a description of the error
+and optionally the line where the error ocurred, usually lastLine, and an aproximation to the location of the error.
+
+The ScannerError, ParserError and InterpreterError share the same implementation and are called by their similar
+HulkExcpetions. 
+
+
+
+Error Handling Design:                                                  ____ ScannerException ____ Throwed by the Scanner class ________
+                                                                        |                                                               |
+Hulk____Expected Errors ____ Represented by HulkException ______________|___ ParserException  ____ Throwed by the Parser class __________ Call the HandleException method -> Call the correct Error method from Hulk class for printing the error.
+    |                                                                   |                                                               |
+    \___Unexcpected Errors ____ Print the message and the stack trace.  |___ InterpreterException ____ Throwed by the Interpreter class |
+
+
+The DebugScanner and DebugParser methods are not currently used but their purpose is to print the tokens produced by
+the scanner and the ast produced by the parser respectively.
+
+
+A Hulk Program Lifecycle:
+SourceCode -> Scanner -> Tokens -> Parser -> AST -> Interpreter -> Result.
+
+Interpreter:
+This class interprets, excecutes, the source code and produce the results.
+
+It has an Environment field where variables and functions are stored, and who provides some other functionalities.
+
+The Interpret method is the entry point of the Interpreter, it receives the ast and returns a string version of the
+result or null if it interprets a function declaration.
+On this method exceptions are catched and rethrowed by calling the HandleException method, a scheme reused on the
+scanner and the parser entry points.
+
+The Evaluate method is where the visitor pattern starts working, it receives an Expr and call its Accept
+method which will call back the correct visit method from the interpreter.
+
+VisitLiteralExpr:
+A literal expresion evaluates to its value.
+
+VisitUnaryExpr:
+Operator !: Works only with a boolean operand. Returns its negation.
+Operator -: Works only with numbers. Returns their opposite.
+
+Note: Works only with 'x type' implies that an error is throwed if another one is provided.
+
+VisitBinaryExpr:
+Evaluation of binary expressions develops as follows.
+Evaluate the left side expression.
+Evaluate the right side expression.
+Then evaluate the operation.
+Operator +: Works only with numbers. Return its sum.
+Operator -: Works only with numbers. Return its diference.
+Operator @: Works only with strings. Concatenate the right string to the left one and return the concatenation.
+Operator *: Works only with numbers. Return its product.
+Operator %: Works only with numbers. Return the rest of the division of the left number by the right number.
+Operator /: Works only with numbers. Return the quotient of the division of the left number by the right number.
+Operator ^: Works only with numbers. Return the result of raising the left number to the right number.
+Operators < <= > >= : Work only with numbers. Work as usual. Returns a boolean value.
+Operators != == : This methods use the auxiliary method IsEqual. Returns a boolean value.
+Operator & : Works only whit booleans. Does not shortcircuit. Logical and. Returns a boolean value.
+Operator | : Works only whit booleans. Does not shortcircuit. Logical or. Returns a boolean value.
+
+VisitConditionalExpr:
+A conditional expression first evaluate its condition.
+If its true then return the result from evluating the 'if' branch expression.
+If not then return the result from evaluating the else branch expression.
+In the case that the condition does not evaluates to boolean its an error.
+
+VisitLetInExpr:
+In a let-in expression the 'in' expression can access to the variables declared after the 'let' and before the 'in',
+and those variables dissapear after that.
+
+To achieve this behaviour it uses methods from the Environment class.
+First the variables are setted with their corresponding values. To do this the rvalues of the assignments are evaluated
+and the through the Set method from environment those values are binded to the variables.
+
+Variables ready. Now the expression after the 'in' is evaluated and its value stored for returning it later.
+
+After that the variables must dissapear, because they go out of scope. This is achieved by calling the Remove method from
+the Environment class and providing it with the variable identifier.
+
+Now the stored value its returned.
+
+Its worth remebering that the interpreter owns a instance of Environment called ,creatively, environment which is a
+big global mutable Environment.
+
+VisitAssignmentExpr:
+AssignmentExpr are not evaluated as they only exist whitin the LetInExpr and the VisitLetInExpr handles them.
+
+VisitVariableExpr:
+Evaluating a variable is returning its associated value. This is done via the Environment Get method passing the
+identifier of the variable.
+
+VisitFunctionExpr:
+FunctionExpr doesn evaluate to anything so this returns null. Before returning the function is registered via
+the Environment Register method passing the FunctionExpr as parameter.
+
+VisitCallExpr:
+This is where functions calls do their magic.
+First it checks if its in presence of a builtin function, if so it retrieve its parameters and evaluates them, because
+they are expressions.
+Then identify which builtin is to be called, check the parameters and evaluate that function returning its result.
+
+After that it checks if exists a function with this name, if not its an error.
+After that it checks if exists a function with this name and arity, if not is an error.
+
+If the name and arity are correct, they represent a decalred function, it continues.
+
+A LetInExpr is used for evaluating function calls based on the following observation:
+    -A function argument and a function parameter can be used to make an AssignmentExpr where
+    the argument provides the identifier and the parameter provides the rvalue.
+    -After this initial setup the body of the function can be excecuted like the expression after the 'in'
+    on a let-in expression.
+
+So evaluating a function call from this point its creating a LetInExpr based on the previous observations, and the 
+result from evaluating that LetInExpr is the result of the call.
+
+This is code reusability.
+
+The helper method IsEqual is used for checking equality, it uses the Equals method from C# and
+it returns true wheter the objects being compared have the same value because they are, numbers(floats), strings
+and booleans.
+
+The family of helper methods Check$TYPE$Operand where TYPE is one of: Number, String or Bool behaves mostly in a similar
+fashion. They receive the token that represents the operation for error printing purposes. They receive the object
+they must check its type and an optional parameter pos, which indicates the position of the object
+respect the operator: -1 left, 1 right, 0 by default. Then they check the object is the expected type and if not
+they throw a fancy exception.
+
+The SetPosString and GetType methods are meant to help those previous checks to print its error messages.
+
+
+Builtin functions are :
+    rand() generates a random number in the interval [0,1)
+    cos(x), exp(x), sin(x), sqrt(x) , similars to their C# equivalent.
+    log(base,value) for logarithm calculation.
+    print(expression) for printing. Prints on the console the value it contains and returns it. This is done to aid
+    debugging process.
+
+Token:
+This class represents tokens, the units produced by the scanner after procesing the source code.
+They are foundational on this interpreter and are used since the begining of the development process.
+
+A Token contains an offset, which is the position of the firts character of this token on the line it was found.
+For example : 3 + alfa;
+                  ^
+                  This position, 4, corresponds to the offset of the token that represents the identifier alfa.
+A Token has a type, types can be viewed on the file TokenType.cs
+A Token has a Lexeme, which is the portion of source code from which the token was generated.
+A Token can have a Literal value, which can be null associated to it.
+
+Tokens also offer a ToString method for debugging purposes.
+
+Tokens are simple but powerful.
+
+Note that most tokens doesnt have a literal value, only those who represents string literals and numbers.
+Note that for string literals their lexeme includes the quotes but their literal value does not.
+
+TokenType:
+Token types are represented by the TokenType enumeration.
+
+Parser:
+This class creates an Abstract Syntax Tree from a list of tokens.
+
+It maintains as fields a list of tokens named tokens and a integer called current 
+that represents the position of the next token to be parsed.
+
+List of tokens:
+Number  Plus  Minus Number Semicolon EOF
+    2                    3
+                ^
+                |
+            Current = 2
+------------   --------------------------
+These two are   These are yet to be parsed
+already parsed
+
+The current field is set to 0 by default and tokens is initialized on the constructor.
+This way the Parser feeds on the output from the interpreter.
+
+The Parse method its the entry point of the Parser. It starts the recursive descending parsing
+by calling the HLExpression method. Please refer to the Grammar.txt file to visualize the recursive descending 
+structure who follows the parser.
+It also capture errors ocurred during the parsing and calls the HandleException method, a similiar pattern is followed
+on the interpreter and scanner for error handling.
+On this method some errors are detected like an expression that doesnt ends on a ';'.
+
+The HLExpression method parses a function declaration, with all its requirements, if it founds the 'function' keyword else
+it falls to Expression (falls to means it descends).
+The above rule guarantees that no function declaration can be inside of any kind of expression. So function
+declarations are special types of expressions.
+
+The Arguments method represents the Params rule of the grammar, it just captures the arguments. It offers assistance to
+the HLExpression method for parsing function declarations.
+
+The Expression method surrounds every other Hulk expression. It falls to Declaration. It also detects if a function is
+beign declared by looking at the 'function' keyword and reports the error.
+
+The Declaration method parses let-in expressions or falls to Conditional. Here is seen by the first time the recursive nature
+of this calls since for parsing the expression after the 'in' keyword it calls the Expression method. Also this is an example
+of right associativity, although indirectly, because the expression after the 'in' can be a let-in expresion.
+
+The Assigment method helps the Declaration method by parsing the variable declaration between the 'let' and the 'in'.
+It treats no assignments like an error.
+
+The Conditional method parses if-else expressions or falls to Or. It also calls the Expression method for parsing
+the expression on the condition, the if branch and the else branch.
+
+The Or method parses an arbitrary number of operands related by the '|' operator, for logical or, from  left to right; because
+its left associative; or falls to And.
+'w | x | y | z' its parsed as: ((w | x) | y) | z
+
+The And method parses an arbitrary number of operands related by the '&' operator, for logical and, from left to right;
+because its left associative; or falls to Equality.
+'w & x & y & z' its parsed as: ((w & x) & y) & z
+
+The Equality method parses an arbitrary number of operands related by the '==' or '!=' operators, but it stops if it found
+more than one because that its not supported and reports it as an error.
+a == b is parsed as usual.
+a != b is parsed as usual.
+a == b == c is an error.
+a == b != c is an error.
+a != b == c is an error.
+a != b != c is an error.
+However if parenthesis are added it works:
+(a == b) != c , OK
+a == (b != c) , OK
+
+
+The Comparison method parses an arbitrary number of operands related by the '>','>=','<' or'<=' operators, but it stops
+if it founds more than one because that its not supported and reports it as an error. Just like the Equality method.
+a > b is parsed as usual.
+a > b > c is an error.
+a < b <= c is also an error.
+This should be expressed as:
+a < b & b <= c
+
+
+On the Equality method and the Comparison method an invalid syntax is allowed to be parsed because that way it can
+be reported as an error easily.
+
+The Term method parses an arbitrary number of operands related by any combination of the operators '+','-' and '@',
+from left to right because they are left associative, or falls to Factor. Note that later in the interpreter errors might
+be reported by using arithmetic operators and the string concatenation operator on the same expression due to invalid
+operands, ie: an '@' who receives a number as his right operand.
+2 + 3 + 4 is parsed as (2 + 3) + 4
+2 - 3 - 4 is parsed as (2 - 3) - 4
+2 + 3 - 4 + 5 - 6 - 7 is parsed as (((((2 + 3) - 4) + 5) - 6) - 7)
+
+The Factor method parses an arbitrary number of operands related by any combination of the operators '*', '%' and '/',
+from left to right because they are left associative, or falls to power.
+2 * 3 * 4 is parsed as (2 * 3) * 4
+2 / 3 / 4 is parsed as (2 / 3) / 4
+2 % 3 % 4 is parsed as (2 % 3) % 4
+2 % 3 / 2 * 4 is parsed as ((2 % 3) / 2) * 4
+
+The Power method parses an arbitrary number of operands related by the '^' operator, from right to left because
+it is right associative, or falls to Unary.
+5 ^ 4 ^ 1 is parsed as 5 ^ (4 ^ 1)
+
+
+The Grouping method parses a parenthesized expression, or falls if no parenthesis are found.
+
+The Call method parses a function call. It parses its parameters through the auxiliary function Parameters.
+
+The Parameters method parses a comma separated list of parameters of arbitrary size. the parameters it parses
+are expressions. It returns the list to the Call method to build the CallExpr.
+
+The Literal method parses the following expressions:
+    -string literals
+    -number literals
+    -true keyword
+    -false keyword
+    -PI constant
+    -E constant, for Euler.
+    -Identifiers, which do not constitute calls.
+If the token doesnt fall in any of this categories it does call the helper method Unrecognized.
+
+The Unrecognized method just throws exceptions. Its reached when an expression is expected but no suitable one
+is found.
+
+The Peek method returns the current token.
+
+The PeekNext method returns the token one position ahead of the current token. This is a lookahead of one.
+
+The Advance method returns the current token and moves current one position forward. This is called consume the token.
+
+The Match method checks if the type of the current token , if it is of one expected type it consumes the token and returns
+true, if not it returns false. Its like a conditional Advance.
+
+The Previous method returns the token one position behind current.
+
+The HasSemicolon method returns true if a semicolon exist on the remaining tokens, current included.
+
+The GetOffset method returns the offset of the current token.
+
+FALTAN
+PARSER
+REPLACER
+SCANNER
