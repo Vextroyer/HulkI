@@ -54,7 +54,7 @@ class Hulk{
     //Return the result of evaluate the expression or null if an error ocurred.
     //In the case of an error it will automatically report it before returning.
     public static string? Run(string? source){
-        if(string.IsNullOrEmpty(source))throw new ArgumentException();
+        if(string.IsNullOrEmpty(source) || string.IsNullOrWhiteSpace(source))throw new ArgumentException();
         try{
             //Last line of source code.
             lastLine = source;
