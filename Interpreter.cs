@@ -217,6 +217,7 @@ class Interpreter : Visitor<object>{
                 case "exp":
                     return (float) Math.Exp((float)_parameters[0]);
                 case "print":
+                    Console.WriteLine(_parameters[0]);//Print echoes its content before returning it for debugging purposes.
                     return _parameters[0];
                 case "sin":
                     return (float) Math.Sin((float)_parameters[0]);
