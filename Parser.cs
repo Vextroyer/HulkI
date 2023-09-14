@@ -77,8 +77,6 @@ class Parser{
     }
 
     private Expr Expression(){
-        //If a function keyword is found here, its because its inside some other expression, wich its not allowed.
-        if(Peek().Type == TokenType.FUNCTION)throw new ParserException("Function declaration not allowed as part of other expressions.",GetOffset());
         //Fall to the next
         return Declaration();
     }
@@ -336,6 +334,8 @@ class Parser{
 
     //Helper method that launch an exception
     private Expr Unrecognized(){
+        //If a function keyword is found here, its because its inside some other expression, wich its not allowed.
+        if(Peek().Type == TokenType.FUNCTION)throw new ParserException("Function declaration not allowed as part of other expressions.",GetOffset());
         throw new ParserException("Unrecognized Expresion.",GetOffset());
     }
 
