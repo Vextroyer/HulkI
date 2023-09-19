@@ -538,7 +538,137 @@ The HasSemicolon method returns true if a semicolon exist on the remaining token
 
 The GetOffset method returns the offset of the current token.
 
-FALTAN
-PARSER
-REPLACER
-SCANNER
+Replacer:
+The Replacer class replaces all occurences of an identifier by another identifier on an AST.
+
+This helps addressing the following situation:
+I declare a function 
+    function thisIsFun(sum) => "ja ja ja";
+This is not an error because there is no function named sum, yet.
+I can call it
+    thisIsFun(2);
+But if i declare sum to be a function
+    function sum(a,b) => a + b;
+And i call thisIsFun again
+    thisIsFun(2);
+This is an error because the argument sum also collide with a function name.
+Thus its a technique to guarantee that : No variable can be named as a function.
+
+The Replacer class implements the Visitor interface in order to process each kind of expression.
+
+The field viejo contains the old identifier, the one we want to replace.
+The field nuevo contains the new identifier, the one we want to use as a replacement.
+
+The constructor sets the fields viejo y nuevo and calls the Replace method with the provided AST.
+
+An example to ilustrate how Repacer works:
+OLD_CODE:
+    let a = 12 in 3 ^ a * (5 + a);
+We want to replace a by b:
+NEW_CODE:
+    let b = 12 in 3 ^ b * (5 + b);
+The Replacer class just do that.
+
+Notice that it received an expression and returned an expression, that is why it implements Visitor<Expr>.
+Also notice that the Replace method is doing a Pre-Order traversal of the AST because it visits all the children
+of a node(All the nested expressions on an expression), before computing the new expression.
+
+
+A LiteralExpr doesnt need replacements because it has no identifiers.
+An UnaryExpr can have identifiers on the operand, so the operand is recursively replaced.
+A BinaryExpr can have identifiers on any operand, so both operands are recursively replaced.
+A ConditionalExpr can have identifiers on the condition, the if-branch expression and the else-branch expression,
+so those are recursively replaced.
+A LetInExpr can have identifiers on the assignments and the in-branch, so those are recursively replaced.
+An AssignmentExpr can have identifiers as the variable beign assigned to as well on the rValue expression. The rValue
+expression is recursively replaced, the identifier of the variable beign assigned to is replaced instantly in case of
+a Match.
+A VariableExpr is an identifier, so if it Match its replaced.
+A FunctionExpr can have identifiers as parameters and on the body expression, so the parameters are replaced if nedded and
+the body is recursively replaced. Notice that the main target of the Replacer are FunctionExpr.
+A CallExpr has an identifier for the functions name and can have identifiers on the parameters. The functions name is replaced
+if nedded and each parameter, which is an expression, is recursively replaced.
+
+The Match function receives a Token, for the identifier, and if it is different from viejo it returns the same Token,
+but if its the same as viejo it returns a copy of nuevo with the offset of the given identifier.
+
+
+Scanner:
+The Scanner class receives Hulk source code and translate it into tokens.
+
+The field source keeps the source code string.
+The field tokens is the list of tokens produced from the source.
+The field current gives the position on the source string of the next character to be processed.
+The field start gives the position on the source string were the actual token started.
+
+A visual example for ilustrating the meaning of the fields. 
+source    "let a = "An example" on a @ "By Vex";"
+current                          ^
+start                           ^
+tokens [let , identifier(a) , equal, string("An example")]
+
+The keywords fields is a predefined dictionary that translates a string to a TokenType.
+
+The constructor receives a source code and initializes source wiht it.
+The fields start and current are initialized as 0 by default and tokens is initialized as an empty list.
+
+The Scan method kepps scannig tokens until it run out of characters. It sets start to current, so this is 
+the start of the new token and calls the ScanToken method.It also catches excpetions that may arise during the scannig phase. 
+
+The ScanToken method hanldes one-char, two-char operators by itself, ignore any whitespaces, and auxiliates on the
+ScanNumber, ScanIdentifier and ScanString methods.
+
+What is an identifier ? An identifier is a piece of consecutive letters, digits and underscores where the first
+character must be a letter or an undescore.
+It can be defined like this: ID = (LETTER | "_") (LETTER | DIGIT | "_")*;
+This way the start of an identifier is different from the start of a number.
+
+The ScanIdentifier method consumes every possible character that can be part of the identifier, aslo known as Maximal 
+Munch principle. Notice that on this phase an identifier can also be a keyword, so if it matchs a keyword the is trated
+as one. 
+Maximal Munch Principle:
+    Consider 'inPut'.
+    The correct way to tokenize it is by treating it as a whole identifier.
+    This other way is incorrect : [in , identifier(Put)]
+    So we must consume every character before deciding which kind of token it is.
+
+What is a number ? A number is a piece of consecutive digits, optionally followed by a dot '.' and more digits.
+It can be defined like this: NUMBER = DIGIT+ ("." DIGIT+)?
+This representation ensures: 
+    -At least one digit before the dot, DIGIT+ means at least one digit.
+    -Optional fractional part, offering support for both integers and real numbers. ("." DIGIT+)? means at most one dot followed by at least one digit.
+    -At least one digit after the dot, because of the DIGIT+ rule.
+
+The ScanNumber method :
+    -Scans the leading digits.
+    -If after that exist a dot and a digit after the dot it scans the dot and all the trailing digits.
+
+
+What is a string? A string is all the text between two quotes, so the quotes are necesary and the text is optional.
+Strings also offer support for the escaped characters: '\t' for representing tabs, '\n' for representing newlines and
+'\"' for representing quotes.
+It can be defined like this : STRING = '"' CHARACTER* '"';
+
+The ScanString method consumes all the characters until it hits a quote, which is treated as an enclosing quote or hits
+the end of the source, which is an error. It also avoids treating the quote on a '\"' as the enclosing quote.
+The string literal value is all the text between the quotes without the quotes.
+After computing this value, all escaped secuences are relaced by the characters they represent and a STRING token is
+created.
+
+The Scan, ScanIdentifier, ScanNumber and ScanString methods auxiliate on the AddToken method.
+
+The AddToken method adds a token to the list of tokens. It computes the lexeme of the token based on its start position.
+
+The IsAtEnd method indicates wheter the end of the source has been found or not.
+
+The Advance method returns the character at position current and moves current one position ahead.
+This is also known as consume the token.
+
+The Peek method returns the character at position current but doesnt move current.
+
+The Match method returns true wheter the given character is the same as the character at current position and moves current
+one position ahead. Its like a conditional Advance.
+
+The IsDigit method returns true when the given character is a digit.
+The IsAlpha method returns true when the given character is a letter or an undescore.
+The IsAlphaNumeric method returns true when the given character IsDigit or IsAlpha.
