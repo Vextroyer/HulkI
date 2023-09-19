@@ -69,11 +69,6 @@ class Environment{
             if(arityTable.ContainsKey(arity)){
                 //There is a function with this arity
                 throw new InterpreterException($"Cant redeclare function '{name}'. Function redeclaration is not allowed.",fun.Identifier.Offset);
-                //Uncomment this block to support function redeclaration.
-                // if(!IsOverwritable(arityTable[arity]))throw new InterpreterException("Function '" + fun.Identifier.Lexeme + "' can not be redefined.");
-                // else {
-                //     funcTable[name][arity] = fun;
-                // }
             }else{
                 funcTable[name].Add(arity,fun);
             }
@@ -82,10 +77,6 @@ class Environment{
             arityTable.Add(arity,fun);
             funcTable.Add(name,arityTable);
         }
-    }
-    //Determines wheter a function is overwritable.
-    private bool IsOverwritable(FunctionExpr fun){
-        return fun.Overwritable;
     }
     //Determine if a given identifier can be used like a function.
     public bool IsFunction(Token identifier){

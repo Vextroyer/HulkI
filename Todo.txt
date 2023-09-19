@@ -7,7 +7,6 @@ captured after the functions are called. Means print the error that happens in t
 Check the types of the arguments passed to primitive functions like sin or cos 
 and report errors of type.
 
-Remove overwritable support for functions.
 
 Division por 0.
 
@@ -22,3 +21,11 @@ let a = 3 in a + let b = 4 in b + 8;
 Empty expressions are not allowed. ';'
 
 Erros reported by malformed expressions or unrecognized expression should be improved to be more specific.
+
+Add a how to section to docs with examples.
+
+Add a how to excecute section to docs.
+
+Write launchers for windows and linux. (bat,sh)
+
+Crear una estructura de carpetas mas comoda. Donde mis archivos fuente no esten regados al inicion.

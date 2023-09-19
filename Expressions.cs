@@ -155,14 +155,11 @@ class FunctionExpr : Expr{
             return Args.Count;
         }
     }
-    //Wheter this function can be redefined in the same REPL session.
-    public bool Overwritable {get; private set;}
 
-    public FunctionExpr(Token identifier,List<Token> args,Expr body,bool overwritable = true){
+    public FunctionExpr(Token identifier,List<Token> args,Expr body){
         Identifier = identifier;
         Args = args;
         Body = body;
-        Overwritable = overwritable;
     }
 
     public override R Accept<R>(Visitor<R> visitor)

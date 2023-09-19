@@ -74,7 +74,7 @@ class Replacer : Visitor<Expr>{
         Expr body = Replace(expr.Body);
         List<Token> arguments = new List<Token>();
         foreach(Token arg in expr.Args)arguments.Add(Match(arg));
-        return new FunctionExpr(identifier,arguments,body,expr.Overwritable);
+        return new FunctionExpr(identifier,arguments,body);
     }
     //The replacement can occur in the parameters because the identifier of the called function can not be the same as a parameter.
     public Expr VisitCallExpr(CallExpr expr){
