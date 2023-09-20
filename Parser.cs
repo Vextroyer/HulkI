@@ -19,18 +19,18 @@ class Parser{
             //Expressions must end in a ;
             if(Match(TokenType.SEMICOLON)){
                 if(Match(TokenType.EOF))return expr;
-                else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.",GetOffset());
+                else throw new ParserException("Found tokens after ';'. Multiple expressions per line not allowed.",Offset);
             }
             else{
                 //If doesnt exist a ';'
-                if(!HasSemicolon())throw new ParserException("Expression must end in a ';'");
+                if(!HasSemicolon)throw new ParserException("Expression must end in a ';'");
                 
                 //If exist a ';' then there are tokens before the ';' that where not parsed.
 
                 //If the current token is a closing paren then the opening paren is missing.
-                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("There is no '(' for this parenthesis.",GetOffset() - 1);
-                if(Match(TokenType.EQUAL))throw new ParserException("Assignments can only be used on a 'let in' expression.",Previous().Offset);
-                throw new ParserException("Malformed expresion.",GetOffset());
+                if(Match(TokenType.RIGHT_PAREN))throw new ParserException("There is no '(' for this parenthesis.",Offset - 1);
+                if(Match(TokenType.EQUAL))throw new ParserException("Assignments can only be used on a 'let in' expression.",Previous.Offset);
+                throw new ParserException("Malformed expresion.",Offset);
             }
         }
         catch(ParserException e){
@@ -46,16 +46,16 @@ class Parser{
     //Divides expressions and function declarations.
     private Expr HLExpression(){
         if(Match(TokenType.FUNCTION)){
-            if(!Match(TokenType.IDENTIFIER))throw new ParserException("Identifier expected but found '" + Peek().Lexeme + "'.",GetOffset());
-            Token identifier = Previous();
-            if(!Match(TokenType.LEFT_PAREN))throw new ParserException("Expected () after function name.",identifier.Offset + identifier.Lexeme.Length);
+            Consume($"Identifier expected but found '{Peek.Lexeme}'.",Offset,TokenType.IDENTIFIER);
+            Token identifier = Previous;
+            Consume($"Expected '(' after function name.",identifier.Offset + identifier.Lexeme.Length,TokenType.LEFT_PAREN);
             List<Token> args = Arguments();
             if(!Match(TokenType.RIGHT_PAREN)){
-                if(Peek().Type == TokenType.IDENTIFIER)throw new ParserException("')' expected but identifier found, are you missing a ','",GetOffset());
-                if(Peek().Type == TokenType.EQUAL)throw new ParserException("Assigments not allowed as function parameters, just variable names.",GetOffset());
-                throw new ParserException("Expected ')' but '" + Peek().Lexeme + "' found.",GetOffset());
+                if(Peek.Type == TokenType.IDENTIFIER)throw new ParserException("')' expected but identifier found, are you missing a ','",Offset);
+                if(Peek.Type == TokenType.EQUAL)throw new ParserException("Assigments not allowed as function parameters, just variable names.",Offset);
+                throw new ParserException("Expected ')' but '" + Peek.Lexeme + "' found.",Offset);
             }
-            if(!Match(TokenType.ARROW))throw new ParserException("Expected '=>' after function signature.",Previous().Offset + 1);
+            Consume($"Expected '=>' after function signature.",Previous.Offset + 1,TokenType.ARROW);
             Expr body = Expression();
 
             return new FunctionExpr(identifier,args,body);
@@ -67,11 +67,11 @@ class Parser{
         List<Token> args = new List<Token>();
         
         //A closing paren at this point means no args.
-        if(Peek().Type == TokenType.RIGHT_PAREN)return args;
+        if(Peek.Type == TokenType.RIGHT_PAREN)return args;
 
         do{
-            if(!Match(TokenType.IDENTIFIER))throw new ParserException("Identifier expected.",GetOffset());
-            args.Add(Previous());//Add the identifier as an argument.
+            Consume($"Identifier expected.",Offset,TokenType.IDENTIFIER);
+            args.Add(Previous);//Add the identifier as an argument.
         }while(Match(TokenType.COMMA));
         return args;
     }
@@ -89,7 +89,7 @@ class Parser{
             
             //'In' part
             if(!Match(TokenType.IN)){
-                throw new ParserException($"Expected 'in' but '{Peek().Lexeme}' was found. Missing a ',' ? Had an error typing 'in' ?",GetOffset());
+                throw new ParserException($"Expected 'in' but '{Peek.Lexeme}' was found. Missing a ',' ? Had an error typing 'in' ?",Offset);
                 // if(Peek().Type == TokenType.IDENTIFIER)throw new ParserException("Identifier found. Are you missing a ',' ?",GetOffset());
                 // throw new ParserException("'in' keyword expected before expression.",GetOffset());
             }
@@ -108,12 +108,12 @@ class Parser{
         do{
             ++round;
             if(!Match(TokenType.IDENTIFIER)){
-                if(Match(TokenType.PI,TokenType.EULER))throw new ParserException(Previous().Lexeme + " is a language constant and cannot be assigned a value.",Previous().Offset);
-                if(Match(TokenType.NUMBER,TokenType.STRING,TokenType.TRUE,TokenType.FALSE))throw new ParserException("Cannot assign a value to a literal.",Previous().Offset);
-                throw new ParserException("Assignment expected" + (round == 0 ? "." : " after ',' ."),Previous().Offset);
+                if(Match(TokenType.PI,TokenType.EULER))throw new ParserException($"'{Previous.Lexeme}' is a language constant and cannot be assigned a value.",Previous.Offset);
+                if(Match(TokenType.NUMBER,TokenType.STRING,TokenType.TRUE,TokenType.FALSE))throw new ParserException("Cannot assign a value to a literal.",Previous.Offset);
+                throw new ParserException("Assignment expected" + (round == 0 ? "." : " after ',' ."),Previous.Offset);
             }
-            Token identifier = Previous();
-            if(!Match(TokenType.EQUAL))throw new ParserException("Equal sign '=' expected after '" + Previous().Lexeme + "'." ,Previous().Offset + Previous().Lexeme.Length);
+            Token identifier = Previous;
+            Consume($"Equal sign '=' expected after '{Previous.Lexeme}'.",Previous.Offset + Previous.Lexeme.Length,TokenType.EQUAL);
             Expr rvalue = Expression();
             assignments.Add(new AssignmentExpr(identifier,rvalue));
         }while(Match(TokenType.COMMA));
@@ -127,26 +127,26 @@ class Parser{
         int elseOffset = -1;
         if(Match(TokenType.IF)){
             //An if token has been consumed
-            ifOffset = Previous().Offset;
+            ifOffset = Previous.Offset;
             //There must be a parenthesized expression, so check for opening paren
-            if(Peek().Type == TokenType.LEFT_PAREN){
+            if(Peek.Type == TokenType.LEFT_PAREN){
                 //If there is a closing paren right after the opening paren thats an error because there is no expression
                 //to be evaluated.
-                if(PeekNext().Type == TokenType.RIGHT_PAREN)throw new ParserException("Empty parenthesis not allowed after if. They must contain an expression.",GetOffset());
+                if(PeekNext.Type == TokenType.RIGHT_PAREN)throw new ParserException("Empty parenthesis not allowed after if. They must contain an expression.",Offset);
                 
                 //It is necesary to check if exist a paren before calling Grouping because
                 //it also handles expressinons without parens and this could lead to confusing errors.
                 Expr condition = Grouping();//This consumes both parens
 
                 //An else right after the pares means an empty expression, thats not allowed
-                if(Peek().Type == TokenType.ELSE)throw new ParserException("No expression found on the 'if' branch.",GetOffset());
+                if(Peek.Type == TokenType.ELSE)throw new ParserException("No expression found on the 'if' branch.",Offset);
 
                 Expr ifBranchExpr = Expression();
 
                 //After the if branch expression comes the else keyword
-                if(!Match(TokenType.ELSE))throw new ParserException("Expected 'else' and '" + Peek().Lexeme + "' was found.",GetOffset());
+                Consume($"Expected 'else' but {Peek.Lexeme} was found",Offset,TokenType.ELSE);
                 
-                elseOffset = Previous().Offset;
+                elseOffset = Previous.Offset;
 
                 //An exception may arise if the else branch expression is empty
                 Expr elseBranchExpr;
@@ -160,7 +160,7 @@ class Parser{
                 return new ConditionalExpr(condition,ifBranchExpr,elseBranchExpr,ifOffset,elseOffset);
             }else{
                 //No paren after an if is a syntactic error
-                throw new ParserException("Expected '(' after if.",Previous().Offset + 2);
+                throw new ParserException("Expected '(' after if.",Previous.Offset + 2);
             }
         }
         //Fall to next
@@ -171,7 +171,7 @@ class Parser{
     private Expr Or(){
         Expr expr = And();
         while(Match(TokenType.PIPE)){
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = And();
             expr = new BinaryExpr(expr,operation,right);
         }
@@ -181,7 +181,7 @@ class Parser{
     private Expr And(){
         Expr expr = Equality();
         while(Match(TokenType.AMPERSAND)){
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = Equality();
             expr = new BinaryExpr(expr,operation,right);
         }
@@ -193,13 +193,14 @@ class Parser{
         Expr expr = Comparison();
 
         int counter = 0;//How many equalities are being used.
+        Token firstOperation = Peek;
         
         //Multiple chained equalities are not supported by the grammar. So report an error if more than one is found.
         while(Match(TokenType.EQUAL_EQUAL,TokenType.BANG_EQUAL)){
             
-            if(counter == 1)throw new ParserException($"Cannot use '{Previous().Lexeme}' after '{Previous().Lexeme}'. Consider using parenthesis and/or logical operators.",Previous().Offset);
+            if(counter == 1)throw new ParserException($"Cannot use '{Previous.Lexeme}' after '{firstOperation.Lexeme}'. Consider using parenthesis and/or logical operators.",Previous.Offset);
             
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = Comparison();
             expr = new BinaryExpr(expr,operation,right);
             
@@ -213,13 +214,14 @@ class Parser{
         Expr expr = Term();
 
         int counter = 0;//How many comparisons are being used.
+        Token firstOperation = Peek;
 
         //Multiple chained comparisons are not supported by the grammar. So report an error if more than one is found.
         while(Match(TokenType.LESS,TokenType.LESS_EQUAL,TokenType.GREATER,TokenType.GREATER_EQUAL)){
             
-            if(counter == 1)throw new ParserException($"Cannot use '{Previous().Lexeme}' after '{Previous().Lexeme}'. Consider using parenthesis and/or logical operators.",Previous().Offset);
+            if(counter == 1)throw new ParserException($"Cannot use '{Previous.Lexeme}' after '{firstOperation.Lexeme}'. Consider using parenthesis and/or logical operators.",Previous.Offset);
 
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = Term();
             expr = new BinaryExpr(expr,operation,right);
 
@@ -232,7 +234,7 @@ class Parser{
     private Expr Term(){
         Expr expr = Factor();
         while(Match(TokenType.MINUS,TokenType.PLUS,TokenType.AT)){
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = Factor();
             expr = new BinaryExpr(expr,operation,right);
         }
@@ -243,7 +245,7 @@ class Parser{
     private Expr Factor(){
         Expr expr = Power();
         while(Match(TokenType.SLASH,TokenType.PERCENT,TokenType.STAR)){
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = Power();
             expr = new BinaryExpr(expr,operation,right);
         }
@@ -254,7 +256,7 @@ class Parser{
     private Expr Power(){
         Expr expr = Unary();
         while(Match(TokenType.CARET)){
-            Token operation = Previous();
+            Token operation = Previous;
             Expr right = Power();
             expr = new BinaryExpr(expr,operation,right);
         }
@@ -263,7 +265,7 @@ class Parser{
     //Unary operators '!' '-'
     private Expr Unary(){
         if(Match(TokenType.BANG,TokenType.MINUS)){
-            Token operation = Previous();
+            Token operation = Previous;
             return new UnaryExpr(operation,Unary());
         }
         return Grouping();
@@ -273,7 +275,7 @@ class Parser{
     private Expr Grouping(){
         if(Match(TokenType.LEFT_PAREN)){
             Expr expr = Expression();
-            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException($"Expected ')' but '{Peek().Lexeme}' was found.",GetOffset());
+            Consume($"Expected ')' but '{Peek.Lexeme}' was found.",Offset,TokenType.RIGHT_PAREN);
             return expr;
         }
         return Call();
@@ -281,11 +283,11 @@ class Parser{
     //Function call
     private Expr Call(){
         //If the next seems like a function call, its a function call.
-        if(Peek().Type == TokenType.IDENTIFIER && PeekNext().Type == TokenType.LEFT_PAREN){
+        if(Peek.Type == TokenType.IDENTIFIER && PeekNext.Type == TokenType.LEFT_PAREN){
             Token identifier = Advance();//Consume the identifier
             Advance();//Consume the opening paren
             List<Expr> parameters = Parameters();
-            if(!Match(TokenType.RIGHT_PAREN))throw new ParserException("')' expected but found '" + Peek().Lexeme + "' .",GetOffset());
+            Consume($"')' expected but found '{Peek.Lexeme}'",Offset,TokenType.RIGHT_PAREN);
             return new CallExpr(identifier,parameters);
         }
         return Literal();
@@ -295,7 +297,7 @@ class Parser{
         List<Expr> parameters = new List<Expr>();
         
         //A closing paren at this point means no parameters.
-        if(Peek().Type == TokenType.RIGHT_PAREN)return parameters;
+        if(Peek.Type == TokenType.RIGHT_PAREN)return parameters;
 
         do{
             parameters.Add(Expression());
@@ -304,7 +306,7 @@ class Parser{
     }
     //Numbers, string literals, true, false, Euler constant and Pi constant
     private Expr Literal(){
-        switch(Peek().Type){
+        switch(Peek.Type){
             //String or number literal
             case TokenType.STRING:
             case TokenType.NUMBER:
@@ -335,17 +337,17 @@ class Parser{
     //Helper method that launch an exception
     private Expr Unrecognized(){
         //If a function keyword is found here, its because its inside some other expression, wich its not allowed.
-        if(Peek().Type == TokenType.FUNCTION)throw new ParserException("Function declaration not allowed as part of other expressions.",GetOffset());
-        throw new ParserException("Unrecognized Expresion.",GetOffset());
+        if(Peek.Type == TokenType.FUNCTION)throw new ParserException("Function declaration not allowed as part of other expressions.",Offset);
+        throw new ParserException("Unrecognized Expresion.",Offset);
     }
 
     //Return the next token to be procesed without advancing current
-    private Token Peek(){
-        return tokens[current];
+    private Token Peek{
+        get { return tokens[current]; }
     }
     //Return the token after current without advancing current
-    private Token PeekNext(){
-        return tokens[current + 1];
+    private Token PeekNext{
+        get { return tokens[current + 1]; }
     }
     //Return the current token and advance current
     private Token Advance(){
@@ -356,27 +358,33 @@ class Parser{
     //It is a conditional advance.
     private bool Match(params TokenType[] types){
         foreach(TokenType type in types){
-            if(type == Peek().Type){
+            if(type == Peek.Type){
                 Advance();
                 return true;
             }
         }
         return false;
     }
+    //If the current token match any of the given tokens advance, if not throw an exception with the given message and offset
+    private void Consume(string message, int offset, params TokenType[] types){
+        if(!Match(types))throw new ParserException(message,offset);
+    }
     //Return the previous token.
-    private Token Previous(){
-        return tokens[current - 1];
+    private Token Previous{
+        get {return tokens[current - 1];}
     }
 
     //Returns true if there exist a semicolon on the remaining tokens.
-    private bool HasSemicolon(){
-        for(int i=current;i<tokens.Count;++i){
-            if(tokens[i].Type == TokenType.SEMICOLON)return true;
+    private bool HasSemicolon{
+        get{
+            for(int i=current;i<tokens.Count;++i){
+                if(tokens[i].Type == TokenType.SEMICOLON)return true;
+            }
+            return false;
         }
-        return false;
     }
     //Get the initial position of the current token in the source code
-    private int GetOffset(){
-        return tokens[current].Offset;
+    private int Offset{
+        get { return tokens[current].Offset; }
     }
 }

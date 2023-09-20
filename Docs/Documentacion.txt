@@ -523,20 +523,24 @@ If the token doesnt fall in any of this categories it does call the helper metho
 The Unrecognized method just throws exceptions. Its reached when an expression is expected but no suitable one
 is found.
 
-The Peek method returns the current token.
+The Peek propertie returns the current token.
 
-The PeekNext method returns the token one position ahead of the current token. This is a lookahead of one.
+The PeekNext propertie returns the token one position ahead of the current token. This is a lookahead of one.
 
 The Advance method returns the current token and moves current one position forward. This is called consume the token.
 
 The Match method checks if the type of the current token , if it is of one expected type it consumes the token and returns
 true, if not it returns false. Its like a conditional Advance.
 
-The Previous method returns the token one position behind current.
+The Consume method , given a message , an offset and a list of types, checks if the current token is of any of the types
+and if it is not it throws an exception with the given message and offset. Its a replacement for :
+    if(!Match(...)) throw new ParserException(message,offset)
 
-The HasSemicolon method returns true if a semicolon exist on the remaining tokens, current included.
+The Previous propertie returns the token one position behind current.
 
-The GetOffset method returns the offset of the current token.
+The HasSemicolon propertie returns true if a semicolon exist on the remaining tokens, current included.
+
+The Offset propertie returns the offset of the current token.
 
 Replacer:
 The Replacer class replaces all occurences of an identifier by another identifier on an AST.
