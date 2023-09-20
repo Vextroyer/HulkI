@@ -1,0 +1,4 @@
+#Ignore files created during pdf compilation from tex files
+*.aux
+*.log
+*.pdf
