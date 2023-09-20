@@ -636,7 +636,7 @@ Maximal Munch Principle:
     This other way is incorrect : [in , identifier(Put)]
     So we must consume every character before deciding which kind of token it is.
 
-What is a number ? A number is a piece of consecutive digits, optionally followed by a dot '.' and more digits.
+What is a number ? A number is a piece of consecutive digits, optionally followed by a dot '.' and one or more digits.
 It can be defined like this: NUMBER = DIGIT+ ("." DIGIT+)?
 This representation ensures: 
     -At least one digit before the dot, DIGIT+ means at least one digit.
