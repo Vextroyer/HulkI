@@ -269,9 +269,14 @@ Interpreter:
 This class interprets, excecutes, the source code and produce the results.
 
 It has an Environment field where variables and functions are stored, and who provides some other functionalities.
+It has a NestedCallCount field which is the amount of nested function calls the code has done. This is reseted to 0
+every time a new line of code is to be interpreted.
+It has a MaxNestedCallCount field which is the maximum amount of nested function calls that a code can do. Its used to
+avoid stack overflow exceptions, which cannot be captured during runtime and cause the end of REPL session resulting in
+a bad user experience. However the process of capturing a stack overflow is slow.
 
 The Interpret method is the entry point of the Interpreter, it receives the ast and returns a string version of the
-result or null if it interprets a function declaration.
+result or null if it interprets a function declaration. It also resets NestedCallCount to 0 on every new call.
 On this method exceptions are catched and rethrowed by calling the HandleException method, a scheme reused on the
 scanner and the parser entry points.
 

@@ -10,7 +10,11 @@ class Interpreter : Visitor<object>{
     //A global excecution environment.
     private Environment environment = new Environment();
 
+    private int NestedCallCount = 0;//Amount of nested function calls. 
+    private int MaxNestedCallCount = 3500;//Limit to 3500 nested function calls. To avoid stack overflows, which cant be captured during runtime.
+
     public string? Interpret(Expr expr){
+        NestedCallCount = 0;//Resets NestedCallCount for every new interpreted line.
         try{
             return Stringify(Evaluate(expr));
         }
@@ -203,6 +207,11 @@ class Interpreter : Visitor<object>{
     }
     //Evaluates a function call
     public object VisitCallExpr(CallExpr expr){
+        if(NestedCallCount > MaxNestedCallCount){
+            Console.WriteLine("Limit of nested function calls exceded, aborting excecution, this can take a minute.");
+            throw new InterpreterException($"Stack overflow on call to function '{expr.Identifier.Lexeme}'");
+        }
+
         //Its a builtin function
         if(environment.IsBuiltin(expr.Identifier.Lexeme,expr.Arity)){
             //Retrieve the value of the parameters
@@ -259,7 +268,13 @@ class Interpreter : Visitor<object>{
         //Now create a let-in expression from the assigments created and the function body.
         LetInExpr functionCall = new LetInExpr(assignments,environment.GetBody(expr.Identifier.Lexeme,expr.Arity));
 
-        return Evaluate(functionCall);
+        //Different exceptions may arise during the call to the function.
+        //Stack overflows will be handled
+
+        ++NestedCallCount;//The function is called.
+        object returnValue = Evaluate(functionCall);
+        --NestedCallCount;//The function succesfully returns.
+        return returnValue;
     }
     //Are this objects equal in terms of value
     private bool IsEqual(object left,object right){
