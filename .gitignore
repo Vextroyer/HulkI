@@ -1,5 +1,6 @@
 obj/
 bin/
 .vscode/
+Docs/
 #Auxiliary files
 #*.aux
