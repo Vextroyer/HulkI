@@ -1,3 +1,6 @@
+To run the Hulk interpreter use the Hulk.sh script.
+A .bat will be added son for Windows environments.
+
 AstPrinter:
 This class is for printing the expressions produced by the parser, so the parser
 output can be debuged. It was more useful in early stages of development.

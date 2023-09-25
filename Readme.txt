@@ -37,3 +37,7 @@ Besides functions Hulki supports :
 	For example 'let x = 5, y = -5 in cos(x + y)' yields 1.
 	-Native functions : rand(), sin(number), cos(number), exp(number), sqrt(number), log(base,value), print(x)
 	-Builtin-constants : E for Euler constant and PI for pi constant.
+
+
+To run the interpreter use the Hulk.sh script.
+A script for Windows will be added soon.
