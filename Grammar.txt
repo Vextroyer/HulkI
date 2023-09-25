@@ -1,0 +1,37 @@
+Recursive descending defined Grammar
+
+HLExpression = ("function" ID "(" Params ")"  "=>")? Expression;//High level expression. Its here to isolate function declarations from other expressions.
+Expression = Declaration;
+Declaration = ("let" Assignment "in" Expression) | Conditional;
+Conditional = ("if" "(" Expression ")" Expression "else" Expression) | Or;
+Or = And ("|" And)*;//Allows an arbitrary number of operations to be chained. Since now , I. This works: A | B | true | false | .... | last.
+And = Equality ("&" Equality)*;//Same as I.
+Equality = Comparison ( ("==" | "!=") Comparison)?;//Allows only a single operation. Since now, II. This doesnt work 15 == x == y, instead use something like 15 == x & x == y,if that is what do you mean.
+Comparison = Factor ( (">" | ">=" | "<" | "<=") Factor)?;//Same as II. This doesnt work  2<= x <= 4, instead use 2 <= x & x <= 4.
+Term = Factor ( ("+" | "-" | "@") Factor)*;//Same as I.
+Factor = Power ( ("*" | "/") Power)*;//Same as I.
+Power = Unary ("^" Power)*;//Same as I. But this can be expressed with recursion because ^ is right associative.
+Unary = ("!" | "-")* Call;
+Call = (ID + "(" + Params + ")") | Grouping;
+Grouping = ("(" Expression ")") | Literal;
+Literal = NUMBER | STRING | "true" | "false" | "E" | "PI" | ID;
+
+// A note on the above rules: 
+// Upper rules have less precedence that bottom rules. For example Unary has higher precedence than Comparison.
+
+Assignment = SingleAssignment ("," SingleAssignment)*;//A comma separated list of assignments.
+SingleAssignment = ID "=" Expresion;//A single assigment.
+Params = (ID ("," ID)* )?;//Parameters or arguments for a function call or declaration.
+
+Symbols:
+?      0 or 1 repetition from the previous rule.
+*      Arbitrary repetiotions from the previous rule, 0 inclusive.
++      At least 1 repetition from the previous rule.
+|      Use only one rule from the group.
+()     Treat rules inside the parenthesis as one rule.
+""     Terminal.
+;      End of rule.
+NUMBER This rule represents a number.
+STRING This rule represents a string.
+ID     This rule represents an identifier.
+//      A comment.
