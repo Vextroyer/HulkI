@@ -1,16 +1,26 @@
 \documentclass{article}
 \usepackage[T1]{fontenc}
 
-\title{Hulki interpreter documentation}
+\usepackage{listings}
+\lstset{
+    frame=tb,
+    language=Bash,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false
+}
+
+\title{HulkI interpreter documentation}
 \author{Victor Vena}
 
 \begin{document}
 
 \maketitle
 
-%\section{How to run Hulki}
+\section{How to run Hulki}
+    \include{RunningHulk}
 %\section{Examples of Hulk code}
 \section{Hulki technical details}
-    \subsection{Classes}
+    \subsection{Technicals}
         \include{TokenType}
 \end{document}
