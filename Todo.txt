@@ -1,4 +1,6 @@
-Capture stack overflow errors produced by recursive function calls.
+Separete testing code from application code. Make a third application that handles testing.
+
+Improve capturing stack overflow exceptions.
 
 Corrcetly print errors produced in function declarations wich can only be
 captured after the functions are called. Means print the error that happens in the body of the function.
@@ -24,8 +26,6 @@ Erros reported by malformed expressions or unrecognized expression should be imp
 
 Add a how to section to docs with examples.
 
-Add a how to excecute section to docs.
+Write launchers for windows. (bat)
 
-Write launchers for windows and linux. (bat,sh)
-
-Crear una estructura de carpetas mas comoda. Donde mis archivos fuente no esten regados al inicion.
+Detectar 14a como un error en tiempo de scaneo, un numero mal formado.
