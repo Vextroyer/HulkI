@@ -1,5 +1,5 @@
 /*
-This class prints an abstract syntax tree in reverse polish notation
+This class prints an abstract syntax tree.
 */
 
 namespace Hulk;
