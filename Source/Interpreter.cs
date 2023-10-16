@@ -213,31 +213,8 @@ class Interpreter : Visitor<object>{
         }
 
         //Its a builtin function
-        if(environment.IsBuiltin(expr.Identifier.Lexeme,expr.Arity)){
-            //Retrieve the value of the parameters
-            List<object> _parameters = new List<object>();
-            foreach(Expr paramExpr in expr.Parameters)_parameters.Add(Evaluate(paramExpr));
-            switch(expr.Identifier.Lexeme){
-                case "rand":
-                    Random random = new Random();
-                    return random.NextSingle();
-                case "cos":
-                    return (float) Math.Cos((float)_parameters[0]);
-                case "exp":
-                    return (float) Math.Exp((float)_parameters[0]);
-                case "print":
-                    Console.WriteLine(_parameters[0]);//Print echoes its content before returning it for debugging purposes.
-                    return _parameters[0];
-                case "sin":
-                    return (float) Math.Sin((float)_parameters[0]);
-                case "sqrt":
-                    return (float) Math.Sqrt((float)_parameters[0]);
-                case "log":
-                    return (float) Math.Log((float)_parameters[1],(float)_parameters[0]);
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+        if(environment.IsBuiltin(expr.Identifier.Lexeme,expr.Arity))return EvaluateBuiltin(expr);
+
         //Its not a function.
         if(!environment.IsFunction(expr.Identifier))throw new InterpreterException("'" + expr.Identifier.Lexeme + "' is not a function.",expr.Identifier.Offset);
         //The function has the incorrect number of parameters.
@@ -276,6 +253,45 @@ class Interpreter : Visitor<object>{
         --NestedCallCount;//The function succesfully returns.
         return returnValue;
     }
+
+    private object EvaluateBuiltin(CallExpr expr){
+        //Retrieve the value of the parameters
+            List<object> _parameters = new List<object>();
+            foreach(Expr paramExpr in expr.Parameters)_parameters.Add(Evaluate(paramExpr));
+            switch(expr.Identifier.Lexeme){
+                case "rand":
+                    float r = new Random().Next() % 100001;
+                    return r / 100000.0;
+                case "cos":
+                    CheckNumberOperand(_parameters[0],expr);
+                    return (float) Math.Cos((float)_parameters[0]);
+                case "exp":
+                    CheckNumberOperand(_parameters[0],expr);
+                    return (float) Math.Exp((float)_parameters[0]);
+                case "print":
+                    Console.WriteLine(_parameters[0]);//Print echoes its content before returning it for debugging purposes.
+                    return _parameters[0];
+                case "sin":
+                    CheckNumberOperand(_parameters[0],expr);
+                    return (float) Math.Sin((float)_parameters[0]);
+                case "sqrt":
+                    CheckNumberOperand(_parameters[0],expr);
+                    return (float) Math.Sqrt((float)_parameters[0]);
+                case "log":
+                    CheckNumberOperand(_parameters[0],expr);
+                    CheckNumberOperand(_parameters[1],expr,1);
+                    return (float) Math.Log((float)_parameters[1],(float)_parameters[0]);
+                default:
+                    throw new NotImplementedException();
+            }
+
+            void CheckNumberOperand(object a,CallExpr expr,int pos = 0){
+                string argumentMessage = "first argument";
+                if(pos == 1)argumentMessage = "second argument";
+                if(!(a is float))throw new InterpreterException($"Number expected but {GetType(a)} was found as " + argumentMessage,expr.Identifier.Offset);
+            }
+    }
+
     //Are this objects equal in terms of value
     private bool IsEqual(object left,object right){
         return Equals(left,right);
