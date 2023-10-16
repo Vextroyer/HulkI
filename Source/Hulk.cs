@@ -6,19 +6,33 @@ The backbone of the Hulk interpreter.
 class Hulk{
     private static Interpreter interpreter = new Interpreter();//Establish an interpreter for the entire session.
     public static void Main(string[] args){
-        //Testing Mode
-        if(args.Length > 0 && args[0] == "test")
-        {
-            Tester.Test();
-            System.Environment.Exit(0);
-        }
+        SelectMode(args);
+    }
 
-        //Error Mode
-        //This is a provisional mode for evaluating expressions from a file
-        if(args.Length > 0){
+    private static void SelectMode(string[] args){
+        if(args.Length == 1){
+            if(args[0] == "test"){
+                TestingMode();
+                return;
+            }
+            else if(args[0] == "error"){
+                ErrorTestingMode();
+                return;
+            }
+        }
+        InteractiveMode();
+    }
+    //Test the interpreter with the provided test cases on the tester class
+    private static void TestingMode(){
+        Tester.Test();
+    }
+    //This is a provisional mode for evaluating expressions from a file
+    private static void ErrorTestingMode(){
+        //This part can fail on opening the file.
+        try{
             //Open the file
             StreamReader errors = new StreamReader("Error.aux");
-            
+                
             //While is not at end
             while(!errors.EndOfStream){
                 string? line = errors.ReadLine();
@@ -29,12 +43,13 @@ class Hulk{
                 Run(line);//It will always throw an exception because its for cheking errors
             }
 
-            //Close it
+            //Close the file
             errors.Close();
-            System.Environment.Exit(0);
+        }catch(Exception){
+            Console.WriteLine("An error occurred while loading Error.aux file.");
         }
-
-        //Interactive mode
+    }
+    private static void InteractiveMode(){
         while(true){
             Console.Write("> ");
             try{
