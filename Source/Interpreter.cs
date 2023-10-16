@@ -88,11 +88,13 @@ class Interpreter : Visitor<object>{
             case TokenType.PERCENT:// %
                 CheckNumberOperand(expr.Operation,left,-1);
                 CheckNumberOperand(expr.Operation,right,1);
+                if((float) right == 0.0)throw new InterpreterException("Division by 0",expr.Operation.Offset);
                 return (float)left % (float)right;
             
             case TokenType.SLASH:// /
                 CheckNumberOperand(expr.Operation,left,-1);
                 CheckNumberOperand(expr.Operation,right,1);
+                if((float) right == 0.0)throw new InterpreterException("Division by 0",expr.Operation.Offset);
                 return (float)left / (float)right;
 
             case TokenType.CARET:// ^
